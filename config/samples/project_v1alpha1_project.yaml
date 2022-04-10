@@ -1,0 +1,17 @@
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: Project
+metadata:
+  name: project-sample
+spec:
+# resourceQuota
+  resourceQuota:
+    requestsCpu: "4"
+    requestsMemory: 5Gi
+    limitsCpu: "3"
+    limitsMemory: 4Gi
+  # limitRange  
+  limitRange:
+    maxCpu: 20000m
+    maxMem: "20Gi"
+    minCpu: "50m"
+    minMem: "50Mi"
