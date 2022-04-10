@@ -2,6 +2,13 @@ apiVersion: project.djkormo.github.io/v1alpha1
 kind: Project
 metadata:
   name: project-sample
+  labels:
+    app: project-sample-label
+  annotations:
+    "co.elastic.logs/multiline.type": "true"
+    "co.elastic.logs/multiline.pattern": "true"
+    "co.elastic.logs/multiline.negate": "true"
+    "co.elastic.logs/multiline.match": "true"
 spec:
 # resourceQuota
   resourceQuota:

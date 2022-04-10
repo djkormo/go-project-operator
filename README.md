@@ -1,4 +1,13 @@
 
+Go Project Operator
+
+```mermaid
+flowchart LR;
+    Project--create/update-->Namespace
+    Project--create/update/delete-->ResourceQuota
+    Project--create/update/delete-->LimitRange
+```
+
 ## 1. Creating template for operator
 
 ```
@@ -145,6 +154,9 @@ make run
 
 ```
 
+```
+make docker-build docker-push IMG="djkormo/go-project-operator:main"
+```
 
 Literature:
 
@@ -156,5 +168,7 @@ https://www.techtarget.com/searchitoperations/tutorial/How-to-build-a-Kubernetes
 https://book.kubebuilder.io/reference/markers.html
 
 https://github.com/programming-kubernetes
+
+
 
 

@@ -51,6 +51,7 @@ type ProjectReconciler struct {
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
+
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
@@ -73,30 +74,89 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		logger.Error(err, "Failed to get Project Operator instance")
 		return ctrl.Result{}, err
 	}
-	// Find resource quota
-	resourceQuotaFound := &corev1.ResourceQuota{}
-	err = r.Get(ctx, types.NamespacedName{Name: Project.Name, Namespace: Project.Name}, resourceQuotaFound)
-	logger.Info("Looking for ResourceQuota")
+
+	// Find if namespace exists
+	namespaceFound := &corev1.Namespace{}
+	err = r.Get(ctx, types.NamespacedName{Name: Project.Name}, namespaceFound)
+
 	if err != nil && errors.IsNotFound(err) {
-		logger.Error(err, "ResourceQuota not found. Trying to create")
-		return ctrl.Result{}, nil
+		// define a new namespace
+		ns := r.namespaceForProjectApp(Project) // namespaceForProjectApp() returns a namespace
+		logger.Info("Creating a new Namespace", "Namespace.Name", ns.Name)
+		err = r.Create(ctx, ns)
+		if err != nil {
+			logger.Error(err, "Failed to create new Namespace", "Namespace.Name", ns.Name)
+			return ctrl.Result{}, err
+		}
+		// namespace created, return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		logger.Error(err, "Failed to get Namespace")
+		// Reconcile failed due to error - requeue
+		return ctrl.Result{}, err
 	}
 
+	// Find if resourcequota exists
+	resourceQuotaFound := &corev1.ResourceQuota{}
+	err = r.Get(ctx, types.NamespacedName{Name: Project.Name, Namespace: Project.Name}, resourceQuotaFound)
+
+	if err != nil && errors.IsNotFound(err) {
+		// define a new resourcequota
+		rq := r.resourceQuotaForProject(Project) // resourceQuotaForProject() returns a resourcequota
+		logger.Info("Creating a new ResourceQuota", "ResourceQuota.Namespace", rq.Namespace, "ResourceQuota.Name", rq.Name)
+		err = r.Create(ctx, rq)
+		if err != nil {
+			logger.Error(err, "Failed to create new ResourceQuota", "ResourceQuota.Namespace", rq.Namespace, "ResourceQuota.Name", rq.Name)
+			return ctrl.Result{}, err
+		}
+		// resourcequota created, return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		logger.Error(err, "Failed to get ResourceQuota")
+		// Reconcile failed due to error - requeue
+		return ctrl.Result{}, err
+	}
+	// Find if limitrange exists
 	limitRangeFound := &corev1.LimitRange{}
 	err = r.Get(ctx, types.NamespacedName{Name: Project.Name, Namespace: Project.Name}, limitRangeFound)
-	logger.Info("Looking for LimitRange")
 	if err != nil && errors.IsNotFound(err) {
-		logger.Error(err, "LimitRange not found. Trying to create")
-		return ctrl.Result{}, nil
-
+		// define a new resourcequota
+		lr := r.limitRangeForProjectApp(Project) // limitRangeForProjectApp() returns a limitrange
+		logger.Info("Creating a new LimitRange", "LimitRange.Namespace", lr.Namespace, "LimitRange.Name", lr.Name)
+		err = r.Create(ctx, lr)
+		if err != nil {
+			logger.Error(err, "Failed to create new LimitRange", "LimitRange.Namespace", lr.Namespace, "LimitRange.Name", lr.Name)
+			return ctrl.Result{}, err
+		}
+		// limitrange created, return and requeue
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		logger.Error(err, "Failed to get LimitRange")
+		// Reconcile failed due to error - requeue
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
 }
 
+func (r *ProjectReconciler) namespaceForProjectApp(m *projectv1alpha1.Project) *corev1.Namespace {
+	labels := m.GetLabels()
+	annotations := m.GetAnnotations()
+	namespace := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace:   m.Name,
+			Name:        m.Name,
+			Labels:      labels,
+			Annotations: annotations,
+		},
+	}
+	return namespace
+}
+
 func (r *ProjectReconciler) resourceQuotaForProject(m *projectv1alpha1.Project) *corev1.ResourceQuota {
 	labels := m.GetLabels()
 	annotations := m.GetAnnotations()
+	//hard:=m.spec.hard()
 	resourceQuota := &corev1.ResourceQuota{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace:   m.Name,
@@ -104,6 +164,14 @@ func (r *ProjectReconciler) resourceQuotaForProject(m *projectv1alpha1.Project) 
 			Labels:      labels,
 			Annotations: annotations,
 		},
+		//		Spec: corev1.ResourceQuotaSpec {
+		//			Hard: {
+		//				requests.cpu:    "1",
+		//				requests.memory: "2",
+		//				limits.cpu:      "1",
+		//				limits.memory:   "2",
+		//			},
+		//		},
 	}
 	return resourceQuota
 }
