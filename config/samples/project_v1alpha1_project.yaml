@@ -12,13 +12,18 @@ metadata:
 spec:
 # resourceQuota
   resourceQuota:
-    requestsCpu: "4"
-    requestsMemory: 5Gi
-    limitsCpu: "3"
-    limitsMemory: 4Gi
+    requests.cpu: "4"
+    requests.memory: 5Gi
+    limits.cpu: "3"
+    limits.memory: 4Gi
   # limitRange  
   limitRange:
     maxCpu: 20000m
-    maxMem: "20Gi"
+    maxMemory: "20Gi"
     minCpu: "50m"
-    minMem: "50Mi"
+    minMemory: "50Mi"
+    defaultCpu: "1000"
+    defaultMemory: "1000"
+    defaultRequestCpu: "100"
+    defaultRequestMemory: "100"
+

@@ -21,8 +21,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	//"reflect"
+	"reflect"
 
+	"fmt"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -89,11 +90,44 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			return ctrl.Result{}, err
 		}
 		// namespace created, return and requeue
+		logger.Info("Namespace created", "Namespace.Name", ns.Name)
 		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
 		logger.Error(err, "Failed to get Namespace")
 		// Reconcile failed due to error - requeue
 		return ctrl.Result{}, err
+	}
+
+	// This point, we have the namespace object created
+	// Ensure the namespace labels and annotations are the same
+	labels := Project.GetLabels()
+	annotations := Project.GetAnnotations()
+	ns_unchanged_labels := IsMapSubset(namespaceFound.ObjectMeta.Labels, labels)
+	ns_unchanged_annotations := IsMapSubset(namespaceFound.ObjectMeta.Annotations, annotations)
+	if !(ns_unchanged_labels && ns_unchanged_annotations) {
+		logger.Info("Updating labels and annotation in namespace", "Name:", namespaceFound.Name)
+
+		if !ns_unchanged_labels {
+			logger.Info("Desired labels ", "Labels:", labels)
+			logger.Info("Actual labels ", "Labels:", namespaceFound.ObjectMeta.Labels)
+		}
+
+		if !ns_unchanged_annotations {
+
+			logger.Info("Desired annotations", "Annotations:", annotations)
+			logger.Info("Actual annotations", "Annotations:", namespaceFound.ObjectMeta.Annotations)
+		}
+		namespaceFound.ObjectMeta.Labels = labels
+		namespaceFound.ObjectMeta.Annotations = annotations
+		err = r.Update(ctx, namespaceFound)
+		if err != nil {
+			logger.Error(err, "Failed to update Namespace", "Namespace.Namespace", namespaceFound.Namespace, "Namespace.Name", namespaceFound.Name)
+			return ctrl.Result{}, err
+		}
+		// Spec updated return and requeue
+		// Requeue for any reason other than an error
+		return ctrl.Result{Requeue: true}, nil
+
 	}
 
 	// Find if resourcequota exists
@@ -116,6 +150,41 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		// Reconcile failed due to error - requeue
 		return ctrl.Result{}, err
 	}
+
+	// This point, we have the resource quota object created
+	// Ensure the resource quota specification is the same as in Project object
+	// TODO
+
+	//logger.Info("Updating spec in resourceQuota")
+
+	rq_unchanged_labels := IsMapSubset(resourceQuotaFound.ObjectMeta.Labels, labels)
+	rq_unchanged_annotations := IsMapSubset(resourceQuotaFound.ObjectMeta.Annotations, annotations)
+	if !(rq_unchanged_labels && rq_unchanged_annotations) {
+		logger.Info("Updating labels and annotation in resourceQuota", "Name:", resourceQuotaFound.Name)
+
+		if !rq_unchanged_labels {
+			logger.Info("Desired labels ", "Labels:", labels)
+			logger.Info("Actual labels ", "Labels:", resourceQuotaFound.ObjectMeta.Labels)
+		}
+
+		if !rq_unchanged_annotations {
+
+			logger.Info("Desired annotations", "Annotations:", annotations)
+			logger.Info("Actual annotations", "Annotations:", resourceQuotaFound.ObjectMeta.Annotations)
+		}
+		resourceQuotaFound.ObjectMeta.Labels = labels
+		resourceQuotaFound.ObjectMeta.Annotations = annotations
+		err = r.Update(ctx, resourceQuotaFound)
+		if err != nil {
+			logger.Error(err, "Failed to update ResourceQuota", "ResourceQuota.Namespace", resourceQuotaFound.Namespace)
+			return ctrl.Result{}, err
+		}
+		// Spec updated return and requeue
+		// Requeue for any reason other than an error
+		return ctrl.Result{Requeue: true}, nil
+
+	}
+
 	// Find if limitrange exists
 	limitRangeFound := &corev1.LimitRange{}
 	err = r.Get(ctx, types.NamespacedName{Name: Project.Name, Namespace: Project.Name}, limitRangeFound)
@@ -136,7 +205,40 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, err
 	}
 
-	return ctrl.Result{}, nil
+	// This point, we have the limit range object created
+	// Ensure the limit range specification is the same as in Project object
+	// TODO
+
+	lr_unchanged_labels := IsMapSubset(limitRangeFound.ObjectMeta.Labels, labels)
+	lr_unchanged_annotations := IsMapSubset(limitRangeFound.ObjectMeta.Annotations, annotations)
+	if !(lr_unchanged_labels && lr_unchanged_annotations) {
+		logger.Info("Updating labels and annotation in limitRange", "Name:", limitRangeFound.Name)
+
+		if !lr_unchanged_labels {
+			logger.Info("Desired labels ", "Labels:", labels)
+			logger.Info("Actual labels ", "Labels:", limitRangeFound.ObjectMeta.Labels)
+		}
+
+		if !lr_unchanged_annotations {
+
+			logger.Info("Desired annotations", "Annotations:", annotations)
+			logger.Info("Actual annotations", "Annotations:", limitRangeFound.ObjectMeta.Annotations)
+		}
+		limitRangeFound.ObjectMeta.Labels = labels
+		limitRangeFound.ObjectMeta.Annotations = annotations
+		err = r.Update(ctx, limitRangeFound)
+		if err != nil {
+			logger.Error(err, "Failed to update LimitRange", "LimitRange.Namespace", limitRangeFound.Namespace)
+			return ctrl.Result{}, err
+		}
+		// Spec updated return and requeue
+		// Requeue for any reason other than an error
+		return ctrl.Result{Requeue: true}, nil
+
+	}
+
+	return ctrl.Result{Requeue: true}, nil
+	//return ctrl.Result{}, nil
 }
 
 func (r *ProjectReconciler) namespaceForProjectApp(m *projectv1alpha1.Project) *corev1.Namespace {
@@ -156,7 +258,6 @@ func (r *ProjectReconciler) namespaceForProjectApp(m *projectv1alpha1.Project) *
 func (r *ProjectReconciler) resourceQuotaForProject(m *projectv1alpha1.Project) *corev1.ResourceQuota {
 	labels := m.GetLabels()
 	annotations := m.GetAnnotations()
-	//hard:=m.spec.hard()
 	resourceQuota := &corev1.ResourceQuota{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace:   m.Name,
@@ -164,14 +265,7 @@ func (r *ProjectReconciler) resourceQuotaForProject(m *projectv1alpha1.Project) 
 			Labels:      labels,
 			Annotations: annotations,
 		},
-		//		Spec: corev1.ResourceQuotaSpec {
-		//			Hard: {
-		//				requests.cpu:    "1",
-		//				requests.memory: "2",
-		//				limits.cpu:      "1",
-		//				limits.memory:   "2",
-		//			},
-		//		},
+		//Spec: m.Spec.ResourceQuota,
 	}
 	return resourceQuota
 }
@@ -186,6 +280,7 @@ func (r *ProjectReconciler) limitRangeForProjectApp(m *projectv1alpha1.Project) 
 			Labels:      labels,
 			Annotations: annotations,
 		},
+		//Spec: m.Spec.LimitRange,
 	}
 	return limitRange
 }
@@ -195,4 +290,38 @@ func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&projectv1alpha1.Project{}).
 		Complete(r)
+}
+
+// https://stackoverflow.com/questions/67900919/check-if-a-map-is-subset-of-another-map
+func IsMapSubset(mapSet interface{}, mapSubset interface{}) bool {
+
+	mapSetValue := reflect.ValueOf(mapSet)
+	mapSubsetValue := reflect.ValueOf(mapSubset)
+
+	if fmt.Sprintf("%T", mapSet) != fmt.Sprintf("%T", mapSubset) {
+		return false
+	}
+
+	if len(mapSetValue.MapKeys()) < len(mapSubsetValue.MapKeys()) {
+		return false
+	}
+
+	if len(mapSubsetValue.MapKeys()) == 0 {
+		return true
+	}
+
+	iterMapSubset := mapSubsetValue.MapRange()
+
+	for iterMapSubset.Next() {
+		k := iterMapSubset.Key()
+		v := iterMapSubset.Value()
+
+		value := mapSetValue.MapIndex(k)
+
+		if !value.IsValid() || v.Interface() != value.Interface() {
+			return false
+		}
+	}
+
+	return true
 }

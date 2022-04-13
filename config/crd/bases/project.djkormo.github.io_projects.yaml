@@ -38,11 +38,27 @@ spec:
               limitRange:
                 description: ResourceQuota specification
                 properties:
+                  defaultCpu:
+                    default: 1000m
+                    description: Default limit for Cpu
+                    type: string
+                  defaultMemory:
+                    default: 1000Mi
+                    description: Default limit for Memory
+                    type: string
+                  defaultRequestCpu:
+                    default: 100m
+                    description: Default request for Cpu
+                    type: string
+                  defaultRequestMemory:
+                    default: 100m
+                    description: Default request for Memory
+                    type: string
                   maxCpu:
-                    default: 2000m
+                    default: 30G
                     description: Maksimum for CPU
                     type: string
-                  maxMem:
+                  maxMemory:
                     default: 20Gi
                     description: Maksimum for Memory
                     type: string
@@ -50,40 +66,44 @@ spec:
                     default: 50m
                     description: Minimum for CPU
                     type: string
-                  minMem:
+                  minMemory:
                     default: 50Mi
                     description: Minimum for Memory
                     type: string
                 required:
+                - defaultCpu
+                - defaultMemory
+                - defaultRequestCpu
+                - defaultRequestMemory
                 - maxCpu
-                - maxMem
+                - maxMemory
                 - minCpu
-                - minMem
+                - minMemory
                 type: object
               resourceQuota:
                 description: ResourceQuota specification
                 properties:
-                  limitsCpu:
+                  limits.cpu:
                     default: "2"
                     description: Limits for CPU
                     type: string
-                  limitsMemory:
+                  limits.memory:
                     default: 4G
                     description: Limits for Memory
                     type: string
-                  requestsCpu:
+                  requests.cpu:
                     default: "2.5"
                     description: Requests for CPU
                     type: string
-                  requestsMemory:
+                  requests.memory:
                     default: 1G
                     description: Requests for Memory
                     type: string
                 required:
-                - limitsCpu
-                - limitsMemory
-                - requestsCpu
-                - requestsMemory
+                - limits.cpu
+                - limits.memory
+                - requests.cpu
+                - requests.memory
                 type: object
             required:
             - limitRange
