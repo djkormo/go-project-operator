@@ -17,6 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -29,9 +31,9 @@ type ProjectSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// ResourceQuota specification
-	ResourceQuota *ResourceQuota `json:"resourceQuota"`
+	ResourceQuota corev1.ResourceQuotaSpec `json:"resourceQuota"`
 	// ResourceQuota specification
-	LimitRange *LimitRange `json:"limitRange"`
+	LimitRange v1.LimitRangeSpec `json:"limitRange"`
 }
 type ResourceQuota struct {
 

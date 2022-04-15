@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"reflect"
@@ -102,6 +103,9 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	// Ensure the namespace labels and annotations are the same
 	labels := Project.GetLabels()
 	annotations := Project.GetAnnotations()
+	resourcequotas := Project.Spec.ResourceQuota.Hard
+	limits := Project.Spec.LimitRange.Limits
+
 	ns_unchanged_labels := IsMapSubset(namespaceFound.ObjectMeta.Labels, labels)
 	ns_unchanged_annotations := IsMapSubset(namespaceFound.ObjectMeta.Annotations, annotations)
 	if !(ns_unchanged_labels && ns_unchanged_annotations) {
@@ -153,14 +157,13 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	// This point, we have the resource quota object created
 	// Ensure the resource quota specification is the same as in Project object
-	// TODO
-
-	//logger.Info("Updating spec in resourceQuota")
 
 	rq_unchanged_labels := IsMapSubset(resourceQuotaFound.ObjectMeta.Labels, labels)
 	rq_unchanged_annotations := IsMapSubset(resourceQuotaFound.ObjectMeta.Annotations, annotations)
-	if !(rq_unchanged_labels && rq_unchanged_annotations) {
-		logger.Info("Updating labels and annotation in resourceQuota", "Name:", resourceQuotaFound.Name)
+
+	rq_unchanged_spec := IsMapSubset(resourceQuotaFound.Spec.Hard, resourcequotas)
+	if !(rq_unchanged_labels && rq_unchanged_annotations && rq_unchanged_spec) {
+		logger.Info("Updating resourceQuota", "Name:", resourceQuotaFound.Name)
 
 		if !rq_unchanged_labels {
 			logger.Info("Desired labels ", "Labels:", labels)
@@ -172,8 +175,14 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			logger.Info("Desired annotations", "Annotations:", annotations)
 			logger.Info("Actual annotations", "Annotations:", resourceQuotaFound.ObjectMeta.Annotations)
 		}
+		if !rq_unchanged_spec {
+
+			logger.Info("Desired spec", "Annotations:", resourcequotas)
+			logger.Info("Actual spec", "Annotations:", resourceQuotaFound.Spec.Hard)
+		}
 		resourceQuotaFound.ObjectMeta.Labels = labels
 		resourceQuotaFound.ObjectMeta.Annotations = annotations
+		resourceQuotaFound.Spec.Hard = resourcequotas
 		err = r.Update(ctx, resourceQuotaFound)
 		if err != nil {
 			logger.Error(err, "Failed to update ResourceQuota", "ResourceQuota.Namespace", resourceQuotaFound.Namespace)
@@ -186,6 +195,7 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	// Find if limitrange exists
+
 	limitRangeFound := &corev1.LimitRange{}
 	err = r.Get(ctx, types.NamespacedName{Name: Project.Name, Namespace: Project.Name}, limitRangeFound)
 	if err != nil && errors.IsNotFound(err) {
@@ -211,8 +221,10 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	lr_unchanged_labels := IsMapSubset(limitRangeFound.ObjectMeta.Labels, labels)
 	lr_unchanged_annotations := IsMapSubset(limitRangeFound.ObjectMeta.Annotations, annotations)
+	//lr_unchanged_spec := areTheSame(limitRangeFound.Spec.Limits, limits)
+	//logger.Info("Updating limitRange ?", "SPEC?", lr_unchanged_spec)
 	if !(lr_unchanged_labels && lr_unchanged_annotations) {
-		logger.Info("Updating labels and annotation in limitRange", "Name:", limitRangeFound.Name)
+		logger.Info("Updating limitRange", "Name:", limitRangeFound.Name)
 
 		if !lr_unchanged_labels {
 			logger.Info("Desired labels ", "Labels:", labels)
@@ -224,8 +236,14 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			logger.Info("Desired annotations", "Annotations:", annotations)
 			logger.Info("Actual annotations", "Annotations:", limitRangeFound.ObjectMeta.Annotations)
 		}
+		//if !lr_unchanged_spec {
+
+		//	logger.Info("Desired spec", "Annotations:", limits)
+		//	logger.Info("Actual spec", "Annotations:", limitRangeFound.Spec.Limits)
+		//}
 		limitRangeFound.ObjectMeta.Labels = labels
 		limitRangeFound.ObjectMeta.Annotations = annotations
+		limitRangeFound.Spec.Limits = limits
 		err = r.Update(ctx, limitRangeFound)
 		if err != nil {
 			logger.Error(err, "Failed to update LimitRange", "LimitRange.Namespace", limitRangeFound.Namespace)
@@ -265,7 +283,10 @@ func (r *ProjectReconciler) resourceQuotaForProject(m *projectv1alpha1.Project) 
 			Labels:      labels,
 			Annotations: annotations,
 		},
-		//Spec: m.Spec.ResourceQuota,
+		//	Spec: m.Spec.ResourceQuota,
+		Spec: corev1.ResourceQuotaSpec{
+			Hard: m.Spec.ResourceQuota.Hard,
+		},
 	}
 	return resourceQuota
 }
@@ -280,7 +301,9 @@ func (r *ProjectReconciler) limitRangeForProjectApp(m *projectv1alpha1.Project) 
 			Labels:      labels,
 			Annotations: annotations,
 		},
-		//Spec: m.Spec.LimitRange,
+		Spec: v1.LimitRangeSpec{
+			Limits: m.Spec.LimitRange.Limits,
+		},
 	}
 	return limitRange
 }
@@ -324,4 +347,32 @@ func IsMapSubset(mapSet interface{}, mapSubset interface{}) bool {
 	}
 
 	return true
+}
+
+//https://github.com/Myafq/limit-operator/blob/master/pkg/controller/clusterlimit/clusterlimit_controller.go
+
+func areTheSame(a []string, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for _, ae := range a {
+		if !includes(ae, b) {
+			return false
+		}
+	}
+	for _, be := range b {
+		if !includes(be, a) {
+			return false
+		}
+	}
+	return true
+}
+
+func includes(a string, b []string) bool {
+	for _, be := range b {
+		if a == be {
+			return true
+		}
+	}
+	return false
 }
