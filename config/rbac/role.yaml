@@ -6,6 +6,46 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - limitranges
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - resourcequotas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: manager-role
+  namespace: project-operator
+rules:
+- apiGroups:
   - project.djkormo.github.io
   resources:
   - projects

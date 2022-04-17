@@ -18,13 +18,15 @@ package controllers
 
 import (
 	"context"
-	corev1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"encoding/json"
 	"reflect"
 
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"fmt"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -40,9 +42,12 @@ type ProjectReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=project.djkormo.github.io,resources=projects,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=project.djkormo.github.io,resources=projects/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=project.djkormo.github.io,resources=projects/finalizers,verbs=update
+//+kubebuilder:rbac:groups=project.djkormo.github.io,namespace=project-operator,resources=projects,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=project.djkormo.github.io,namespace=project-operator,resources=projects/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=project.djkormo.github.io,namespace=project-operator,resources=projects/finalizers,verbs=update
+//+kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch;create;update
+//+kubebuilder:rbac:groups="",resources=resourcequotas,verbs=get;list;watch;create;update;delete
+//+kubebuilder:rbac:groups="",resources=limitranges,verbs=get;list;watch;create;update;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -221,9 +226,9 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	lr_unchanged_labels := IsMapSubset(limitRangeFound.ObjectMeta.Labels, labels)
 	lr_unchanged_annotations := IsMapSubset(limitRangeFound.ObjectMeta.Annotations, annotations)
-	//lr_unchanged_spec := areTheSame(limitRangeFound.Spec.Limits, limits)
-	//logger.Info("Updating limitRange ?", "SPEC?", lr_unchanged_spec)
-	if !(lr_unchanged_labels && lr_unchanged_annotations) {
+	lr_unchanged_spec := reflect.DeepEqual(limitRangeFound.Spec.Limits, limits)
+
+	if !(lr_unchanged_labels && lr_unchanged_annotations && lr_unchanged_spec) {
 		logger.Info("Updating limitRange", "Name:", limitRangeFound.Name)
 
 		if !lr_unchanged_labels {
@@ -236,11 +241,11 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			logger.Info("Desired annotations", "Annotations:", annotations)
 			logger.Info("Actual annotations", "Annotations:", limitRangeFound.ObjectMeta.Annotations)
 		}
-		//if !lr_unchanged_spec {
+		if !lr_unchanged_spec {
 
-		//	logger.Info("Desired spec", "Annotations:", limits)
-		//	logger.Info("Actual spec", "Annotations:", limitRangeFound.Spec.Limits)
-		//}
+			logger.Info("Desired spec", "Annotations:", limits)
+			logger.Info("Actual spec", "Annotations:", limitRangeFound.Spec.Limits)
+		}
 		limitRangeFound.ObjectMeta.Labels = labels
 		limitRangeFound.ObjectMeta.Annotations = annotations
 		limitRangeFound.Spec.Limits = limits
@@ -256,7 +261,6 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	return ctrl.Result{Requeue: true}, nil
-	//return ctrl.Result{}, nil
 }
 
 func (r *ProjectReconciler) namespaceForProjectApp(m *projectv1alpha1.Project) *corev1.Namespace {
@@ -301,7 +305,7 @@ func (r *ProjectReconciler) limitRangeForProjectApp(m *projectv1alpha1.Project) 
 			Labels:      labels,
 			Annotations: annotations,
 		},
-		Spec: v1.LimitRangeSpec{
+		Spec: corev1.LimitRangeSpec{
 			Limits: m.Spec.LimitRange.Limits,
 		},
 	}
@@ -375,4 +379,34 @@ func includes(a string, b []string) bool {
 		}
 	}
 	return false
+}
+
+//https://gosamples.dev/compare-slices/
+func stringSlicesEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func AreEqualJSON(s1, s2 string) (bool, error) {
+	var o1 interface{}
+	var o2 interface{}
+
+	var err error
+	err = json.Unmarshal([]byte(s1), &o1)
+	if err != nil {
+		return false, fmt.Errorf("Error mashalling string 1 :: %s", err.Error())
+	}
+	err = json.Unmarshal([]byte(s2), &o2)
+	if err != nil {
+		return false, fmt.Errorf("Error mashalling string 2 :: %s", err.Error())
+	}
+
+	return reflect.DeepEqual(o1, o2), nil
 }
