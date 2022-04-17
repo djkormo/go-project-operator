@@ -162,7 +162,7 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	// This point, we have the resource quota object created
 	// Ensure the resource quota specification is the same as in Project object
-
+	// Ensure the project labels and annotations are the same as in Project object
 	rq_unchanged_labels := IsMapSubset(resourceQuotaFound.ObjectMeta.Labels, labels)
 	rq_unchanged_annotations := IsMapSubset(resourceQuotaFound.ObjectMeta.Annotations, annotations)
 
@@ -222,7 +222,7 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	// This point, we have the limit range object created
 	// Ensure the limit range specification is the same as in Project object
-	// TODO
+	// Ensure the project labels and annotations are the same as in Project object
 
 	lr_unchanged_labels := IsMapSubset(limitRangeFound.ObjectMeta.Labels, labels)
 	lr_unchanged_annotations := IsMapSubset(limitRangeFound.ObjectMeta.Annotations, annotations)
@@ -401,11 +401,11 @@ func AreEqualJSON(s1, s2 string) (bool, error) {
 	var err error
 	err = json.Unmarshal([]byte(s1), &o1)
 	if err != nil {
-		return false, fmt.Errorf("Error mashalling string 1 :: %s", err.Error())
+		return false, fmt.Errorf("error mashalling string 1 :: %s", err.Error())
 	}
 	err = json.Unmarshal([]byte(s2), &o2)
 	if err != nil {
-		return false, fmt.Errorf("Error mashalling string 2 :: %s", err.Error())
+		return false, fmt.Errorf("error mashalling string 2 :: %s", err.Error())
 	}
 
 	return reflect.DeepEqual(o1, o2), nil

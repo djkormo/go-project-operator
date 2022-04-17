@@ -158,6 +158,12 @@ make run
 make docker-build docker-push IMG="djkormo/go-project-operator:main"
 ```
 
+Making helm chart
+
+```
+kustomize build config/default | helmify chart
+```
+
 Literature:
 
 https://dev.to/ishankhare07/writing-a-simple-kubernetes-controller-in-go-with-kubebuilder-ib8
