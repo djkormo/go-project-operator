@@ -12,6 +12,9 @@ spec:
     kind: Project
     listKind: ProjectList
     plural: projects
+    shortNames:
+    - pr
+    - proj
     singular: project
   scope: Namespaced
   versions:
@@ -36,7 +39,7 @@ spec:
             description: ProjectSpec defines the desired state of Project
             properties:
               limitRange:
-                description: ResourceQuota specification
+                description: LimitRange specification
                 properties:
                   limits:
                     description: Limits is the list of LimitRangeItem objects that

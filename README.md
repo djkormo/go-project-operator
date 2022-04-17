@@ -14,6 +14,8 @@ flowchart LR;
 operator-sdk init --domain=djkormo.github.io --repo=github.com/djkormo/go-project-operator --skip-go-version-check
 
 operator-sdk create api --group=project --version=v1alpha1 --kind=Project
+operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectNetworkPolicy
+
 ```
 
 ## 2. Adding fields to our Project CRD

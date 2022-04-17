@@ -32,61 +32,8 @@ type ProjectSpec struct {
 
 	// ResourceQuota specification
 	ResourceQuota corev1.ResourceQuotaSpec `json:"resourceQuota"`
-	// ResourceQuota specification
+	// LimitRange specification
 	LimitRange v1.LimitRangeSpec `json:"limitRange"`
-}
-type ResourceQuota struct {
-
-	// Requests for CPU
-	// +kubebuilder:default:="2.5"
-	RequestsCpu string `json:"requests.cpu"`
-
-	// Requests for Memory
-	// +kubebuilder:default:="1G"
-	RequestsMemory string `json:"requests.memory"`
-
-	// Limits for CPU
-	// +kubebuilder:default:="2"
-	LimitsCpu string `json:"limits.cpu"`
-
-	// Limits for Memory
-	// +kubebuilder:default:="4G"
-	LimitsMemory string `json:"limits.memory"`
-}
-
-type LimitRange struct {
-
-	// Maksimum for CPU
-	// +kubebuilder:default:="30G"
-	MaxCpu string `json:"maxCpu"`
-
-	// Maksimum for Memory
-	// +kubebuilder:default:="20Gi"
-	MaxMemory string `json:"maxMemory"`
-
-	// Minimum for CPU
-	// +kubebuilder:default:="50m"
-	MinCpu string `json:"minCpu"`
-
-	// Minimum for Memory
-	// +kubebuilder:default:="50Mi"
-	MinMemory string `json:"minMemory"`
-
-	// Default limit for Cpu
-	// +kubebuilder:default:="1000m"
-	DefaultCpu string `json:"defaultCpu"`
-
-	// Default limit for Memory
-	// +kubebuilder:default:="1000Mi"
-	DefaultMemory string `json:"defaultMemory"`
-
-	// Default request for Cpu
-	// +kubebuilder:default:="100m"
-	DefaultRequestCpu string `json:"defaultRequestCpu"`
-
-	// Default request for Memory
-	// +kubebuilder:default:="100m"
-	DefaultRequestmemory string `json:"defaultRequestMemory"`
 }
 
 // ProjectStatus defines the observed state of Project
@@ -96,6 +43,8 @@ type ProjectStatus struct {
 }
 
 //+kubebuilder:object:root=true
+//+kubebuilder:resource:singular=project
+//+kubebuilder:resource:shortName=pr;proj
 //+kubebuilder:subresource:status
 
 // Project is the Schema for the projects API

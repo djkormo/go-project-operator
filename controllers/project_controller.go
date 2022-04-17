@@ -62,10 +62,9 @@ type ProjectReconciler struct {
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	// TODO(user): your logic here
 	logger := log.Log.WithValues("Project", req.NamespacedName)
 
-	logger.Info("Project operator Reconcile method...")
+	logger.Info("Project operator Reconcile method starts...")
 
 	// fetch the Project CR instance
 	Project := &projectv1alpha1.Project{}
@@ -287,7 +286,6 @@ func (r *ProjectReconciler) resourceQuotaForProject(m *projectv1alpha1.Project) 
 			Labels:      labels,
 			Annotations: annotations,
 		},
-		//	Spec: m.Spec.ResourceQuota,
 		Spec: corev1.ResourceQuotaSpec{
 			Hard: m.Spec.ResourceQuota.Hard,
 		},
