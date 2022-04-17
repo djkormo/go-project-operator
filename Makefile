@@ -232,11 +232,14 @@ catalog-build: opm ## Build a catalog image.
 catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
 
+.PHONY: dry-run
+dry-run: manifests
+	cd config/manager 
+	$(KUSTOMIZE) build config/default > all-manifests.yaml
 
-#.PHONY: helmify
-#HELMIFY = $(shell pwd)/usr/bin/helmify
-#helmify:
-#    $(call go-get-tool,$(HELMIFY),github.com/arttor/helmify/cmd/helmify@v0.3.10)
-
-#helm: manifests kustomize helmify
-#    $(KUSTOMIZE) build config/default | $(HELMIFY)
+.PHONY: helmify
+HELMIFY = $(shell pwd)/bin/helmify 
+helmify:
+	$(call go-get-tool,$(HELMIFY),github.com/arttor/helmify/cmd/helmify@v0.3.10)
+helm: manifests kustomize helmify
+	$(KUSTOMIZE) build config/default | $(HELMIFY)

@@ -148,9 +148,13 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 ```console
 
-make build
+make generate IMG="djkormo/go-project-operator:main"
 
-make install
+make manifests IMG="djkormo/go-project-operator:main"
+make build IMG="djkormo/go-project-operator:main"
+
+
+make install IMG="djkormo/go-project-operator:main"
 
 make run
 
