@@ -1,10 +1,10 @@
 apiVersion: project.djkormo.github.io/v1alpha1
 kind: Project
 metadata:
-  name: project-sample
+  name: project-sample-1
   namespace: project-operator
   labels:
-    app: project-sample-label
+    app: project-sample-label-1
   annotations:
     "co.elastic.logs/multiline.type": "true"
     "co.elastic.logs/multiline.pattern": "true"

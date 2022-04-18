@@ -1,0 +1,37 @@
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: Project
+metadata:
+  name: project-sample-2
+  namespace: project-operator
+  labels:
+    app: project-sample-label-2
+  annotations:
+    "co.elastic.logs/multiline.type": "true"
+    "co.elastic.logs/multiline.pattern": "true"
+    "co.elastic.logs/multiline.negate": "true"
+    "co.elastic.logs/multiline.match": "true"
+spec:
+# resourceQuota
+  resourceQuota:
+    hard: 
+      requests.cpu: "2"
+      requests.memory: 3Gi
+      limits.cpu: "4"
+      limits.memory: 5Gi
+  # limitRange  
+  limitRange:
+    limits:
+    - max:
+        memory: "30G"
+        cpu: "30"
+      min:
+        cpu: "50m"
+        memory: "50Mi"
+      default:
+        cpu: "200m"
+        memory: "200Mi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "100Mi"
+      type: Container
+

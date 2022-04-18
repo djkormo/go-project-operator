@@ -62,7 +62,7 @@ type ProjectReconciler struct {
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
 
-	logger := log.Log.WithValues("Project", req.NamespacedName)
+	logger := log.Log.WithValues(req.Namespace, req.NamespacedName)
 
 	logger.Info("Project operator Reconcile method starts...")
 

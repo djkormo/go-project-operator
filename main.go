@@ -20,6 +20,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -79,7 +80,7 @@ func main() {
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
-
+	var resyncPeriod = time.Second * 60
 	watchNamespace, err := getWatchNamespace()
 	if err != nil {
 		setupLog.Error(err, "unable to get WatchNamespace, "+
@@ -94,6 +95,7 @@ func main() {
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "2c9a819a.djkormo.github.io",
 		Namespace:              watchNamespace,
+		SyncPeriod:             &resyncPeriod,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")

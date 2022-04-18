@@ -1,5 +1,6 @@
 ## Append samples you want in your CSV to this file as resources ##
 resources:
-- project_v1alpha1_project.yaml
-- project_v1alpha1_projectnetworkpolicy.yaml
+- project_v1alpha1_project-1.yaml
+- project_v1alpha1_project-2.yaml
+- project_v1alpha1_projectnetworkpolicytemplate.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

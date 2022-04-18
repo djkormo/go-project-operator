@@ -1,0 +1,13 @@
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectNetworkPolicyTemplate
+metadata:
+  name: projectnetpoltemplate-sample-1
+spec:
+  excludeNamespaces:
+    - kube-system
+    - elastic-system
+    - default
+  policySpec:
+    podSelector: {}
+    policyTypes:
+    - Egress
