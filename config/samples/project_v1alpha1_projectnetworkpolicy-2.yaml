@@ -1,0 +1,17 @@
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectNetworkPolicy
+metadata:
+  name: projectnetpol-sample-2
+  labels:
+    app: project-sample-label-2
+  annotations:
+    "co.elastic.logs/multiline.type": "true"
+    "co.elastic.logs/multiline.pattern": "true"
+    "co.elastic.logs/multiline.negate": "true"
+    "co.elastic.logs/multiline.match": "true"
+spec:
+  projectName: project-sample-2
+  networkPolicies:
+    - projectnetpoltemplate-deny-egress
+    - projectnetpoltemplate-allow-dns
+

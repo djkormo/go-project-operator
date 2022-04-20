@@ -17,53 +17,50 @@ limitations under the License.
 package v1alpha1
 
 import (
-	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// ProjectNetworkPolicyTemplateSpec defines the desired state of ProjectNetworkPolicyTemplate
-type ProjectNetworkPolicyTemplateSpec struct {
+// ProjectNetworkPolicySpec defines the desired state of ProjectNetworkPolicy
+type ProjectNetworkPolicySpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of ProjectNetworkPolicyTemplate. Edit projectnetworkpolicytemplate_types.go to remove/update
-	ExcludeNamespaces []string                       `json:"excludeNamespaces,omitempty"`
-	PolicySpec        networkingv1.NetworkPolicySpec `json:"policySpec"`
+	// Foo is an example field of ProjectNetworkPolicy. Edit projectnetworkpolicy_types.go to remove/update
+	ProjectName     string   `json:"projectName,omitempty"`
+	NetworkPolicies []string `json:"networkPolicies,omitempty"`
 }
 
-// ProjectNetworkPolicyTemplateStatus defines the observed state of ProjectNetworkPolicyTemplate
-type ProjectNetworkPolicyTemplateStatus struct {
+// ProjectNetworkPolicyStatus defines the observed state of ProjectNetworkPolicy
+type ProjectNetworkPolicyStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:resource:singular=projectnetworkpolicytemplate
-//+kubebuilder:resource:scope=Cluster
-//+kubebuilder:resource:shortName=projectnetpoltemplate;projectnetpoltemp;projnetpoltemp
+//+kubebuilder:resource:shortName=projnetpol
 
-// ProjectNetworkPolicyTemplate is the Schema for the projectnetworkpolicytemplates API
-type ProjectNetworkPolicyTemplate struct {
+// ProjectNetworkPolicy is the Schema for the projectnetworkpolicies API
+type ProjectNetworkPolicy struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ProjectNetworkPolicyTemplateSpec   `json:"spec,omitempty"`
-	Status ProjectNetworkPolicyTemplateStatus `json:"status,omitempty"`
+	Spec   ProjectNetworkPolicySpec   `json:"spec,omitempty"`
+	Status ProjectNetworkPolicyStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// ProjectNetworkPolicyTemplateList contains a list of ProjectNetworkPolicyTemplate
-type ProjectNetworkPolicyTemplateList struct {
+// ProjectNetworkPolicyList contains a list of ProjectNetworkPolicy
+type ProjectNetworkPolicyList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []ProjectNetworkPolicyTemplate `json:"items"`
+	Items           []ProjectNetworkPolicy `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&ProjectNetworkPolicyTemplate{}, &ProjectNetworkPolicyTemplateList{})
+	SchemeBuilder.Register(&ProjectNetworkPolicy{}, &ProjectNetworkPolicyList{})
 }

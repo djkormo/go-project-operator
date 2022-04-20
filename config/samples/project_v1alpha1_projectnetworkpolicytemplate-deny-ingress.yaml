@@ -1,13 +1,14 @@
 apiVersion: project.djkormo.github.io/v1alpha1
 kind: ProjectNetworkPolicyTemplate
 metadata:
-  name: projectnetpoltemplate-sample-1
+  name: projectnetpoltemplate-deny-ingress
 spec:
   excludeNamespaces:
     - kube-system
     - elastic-system
     - default
   policySpec:
-    podSelector: {}
+    podSelector:
+      matchLabels: {}
     policyTypes:
-    - Egress
+    - Ingress

@@ -4,6 +4,7 @@
 resources:
 - bases/project.djkormo.github.io_projects.yaml
 - bases/project.djkormo.github.io_projectnetworkpolicytemplates.yaml
+- bases/project.djkormo.github.io_projectnetworkpolicies.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
