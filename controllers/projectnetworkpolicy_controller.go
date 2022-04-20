@@ -176,3 +176,4 @@ func (r *ProjectNetworkPolicyReconciler) networkpolicyForProjectApp(m *projectv1
 	}
 	return networkpolicy
 }
+
