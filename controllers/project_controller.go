@@ -242,8 +242,8 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		}
 		if !lr_unchanged_spec {
 
-			logger.Info("Desired spec", "Annotations:", limits)
-			logger.Info("Actual spec", "Annotations:", limitRangeFound.Spec.Limits)
+			logger.Info("Desired spec", "Specification:", limits)
+			logger.Info("Actual spec", "Specification:", limitRangeFound.Spec.Limits)
 		}
 		limitRangeFound.ObjectMeta.Labels = labels
 		limitRangeFound.ObjectMeta.Annotations = annotations

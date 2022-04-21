@@ -18,12 +18,12 @@ package controllers
 
 import (
 	"context"
-
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"reflect"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -65,10 +65,10 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
-			logger.Info("Project networkpolicy resource not found. Ignoring since object must be deleted")
+			logger.Info("ProjectNetworkPolicy resource not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
-		logger.Error(err, "Failed to get Project Operator instance for Network Policy")
+		logger.Error(err, "Failed to get Project Operator instance for NetworkPolicy")
 		return ctrl.Result{}, err
 	}
 
@@ -81,14 +81,16 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
-			logger.Info("Project netpol template not found. Ignoring since object must be deleted")
+			logger.Info("ProjectNetworkPolicyTemplate not found. Ignoring since object must be deleted")
 			return ctrl.Result{}, nil
 		}
-		logger.Error(projNetpoltempErr, "Failed to get Project Operator instance")
+		logger.Error(projNetpoltempErr, "Failed to get Project Operator for NetworkPolicyTemplate")
 		return ctrl.Result{}, projNetpoltempErr
 	}
+
 	// iterating all network policy instances
 	for _, projectNetworkPolicytemplateItem := range ProjectNetworkPolicyTemplateFound.Items {
+
 		// Fetch the ProjectNetworkPolicyTemplate instance
 		projnetpoltempinstance := &projectv1alpha1.ProjectNetworkPolicyTemplate{}
 		err = r.Get(ctx, types.NamespacedName{
@@ -103,40 +105,85 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 		netpolnames := ProjectNetworkPolicy.Spec.NetworkPolicies
 		// Get namespace for of network policy
 		netpolnamespace := ProjectNetworkPolicy.Spec.ProjectName
-
 		// Find if network policy exists
 		networkPolicyFound := &networkingv1.NetworkPolicy{}
 
-		// TODO SPEC should be get from ProjectNetworkPolicyTemplate
-		//networkPolicySpec := &networkingv1.NetworkPolicySpec{}
-
-		// iterate through policie names
+		// Iterate through policy names
 		for _, netpolname := range netpolnames {
+
 			err = r.Get(ctx, types.NamespacedName{
 				Name: netpolname, Namespace: netpolnamespace}, networkPolicyFound)
 			if err != nil && errors.IsNotFound(err) {
+
+				// Define new networkpolicy
 				netpol := r.networkpolicyForProjectApp(ProjectNetworkPolicy, netpolname, projnetpoltempinstance) // networkpolicyForProjectApp() returns a network policy
 				logger.Info("Creating a new NetworkPolicy", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpol.Namespace)
 				err = r.Create(ctx, netpol)
+				//err = nil
+				// in case of error
 				if err != nil {
 					logger.Error(err, "Failed to create new Network Policy", "NetworkPolicy.Name", netpol.Name, "NetworkPolicy.Namespace", netpol.Namespace)
 					return ctrl.Result{}, err
 				}
-				// Here we have networkPolicy deployed
-				//				logger.Info("Updating NetworkPolicy", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpol.Namespace)
-				//				err = r.Update(ctx, netpol)
-				//				if err != nil {
-				//					logger.Error(err, "Failed to update NetworkPolicy", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpol.Namespace)
-				//					return ctrl.Result{}, err
-				//				}
-				//				return ctrl.Result{Requeue: true}, nil
+				// in case of success
+				logger.Info("NetworkPolicy created", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpol.Namespace)
+				return ctrl.Result{Requeue: true}, nil
 
+			} else if err != nil {
+				logger.Error(err, "Failed to get NetworkPolicy")
+				// Reconcile failed due to error - requeue
+				return ctrl.Result{}, err
 			}
 
-		}
-	} // of for
-	//TODO logic when network policy exists
-	//logger.Info("NetworkPolicy exists", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpol.Namespace)
+			netpol := r.networkpolicyForProjectApp(ProjectNetworkPolicy, netpolname, projnetpoltempinstance) // networkpolicyForProjectApp() returns a network policy
+			labels := ProjectNetworkPolicy.GetLabels()
+			annotations := ProjectNetworkPolicy.GetAnnotations()
+			netpolspec := projnetpoltempinstance.Spec.PolicySpec
+
+			netpol_unchanged_labels := IsMapSubset(ProjectNetworkPolicy.ObjectMeta.Labels, labels)
+			netpol_unchanged_annotations := IsMapSubset(ProjectNetworkPolicy.ObjectMeta.Annotations, annotations)
+			netpol_unchanged_spec := reflect.DeepEqual(networkPolicyFound.Spec, netpolspec)
+			if !(netpol_unchanged_labels && netpol_unchanged_annotations && netpol_unchanged_spec && false) {
+
+				logger.Info("Updating NetworkPolicy", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpol.Namespace)
+
+				if !netpol_unchanged_labels {
+					logger.Info("Desired labels ", "Labels:", labels)
+					logger.Info("Actual labels ", "Labels:", ProjectNetworkPolicy.ObjectMeta.Labels)
+				}
+
+				if !netpol_unchanged_annotations {
+
+					logger.Info("Desired annotations", "Annotations:", annotations)
+					logger.Info("Actual annotations", "Annotations:", ProjectNetworkPolicy.ObjectMeta.Annotations)
+				}
+
+				if !netpol_unchanged_spec {
+
+					logger.Info("Desired spec", "Annotations:", netpolspec)
+					logger.Info("Actual spec", "Annotations:", networkPolicyFound.Spec)
+				}
+
+				networkPolicyFound.ObjectMeta.Labels = labels
+				networkPolicyFound.ObjectMeta.Annotations = annotations
+				networkPolicyFound.Spec = netpolspec
+
+				err = r.Update(ctx, netpol)
+				// in case of error
+				if err != nil {
+					logger.Error(err, "Failed to Update NetworkPolicy", "NetworkPolicy.Name", netpol.Name, "NetworkPolicy.Namespace", netpol.Namespace)
+					return ctrl.Result{}, err
+				}
+				// in case of success
+				logger.Info("NetworkPolicy updated", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpol.Namespace)
+				return ctrl.Result{Requeue: true}, nil
+
+			} // of networkpolicy Update
+
+		} // of for iterate through policy names
+
+	} // of for  iterating all network policy instances
+
 	return ctrl.Result{Requeue: true}, nil
 }
 
@@ -146,18 +193,6 @@ func (r *ProjectNetworkPolicyReconciler) SetupWithManager(mgr ctrl.Manager) erro
 		For(&projectv1alpha1.ProjectNetworkPolicy{}).
 		Complete(r)
 }
-
-//func getPolicySpecFromTemplate(p *projectv1alpha1.ProjectNetworkPolicyTemplate) *networkingv1.NetworkPolicySpec {
-//
-//	policytemplatespec := p.Spec.PolicySpec
-
-//	networkpolicyspec := &networkingv1.NetworkPolicySpec{
-//
-//		Spec: p.Spec.PolicySpec,
-//	}
-
-//	return networkpolicyspec
-//}
 
 func (r *ProjectNetworkPolicyReconciler) networkpolicyForProjectApp(m *projectv1alpha1.ProjectNetworkPolicy, name string, t *projectv1alpha1.ProjectNetworkPolicyTemplate) *networkingv1.NetworkPolicy {
 	labels := m.GetLabels()
@@ -176,4 +211,3 @@ func (r *ProjectNetworkPolicyReconciler) networkpolicyForProjectApp(m *projectv1
 	}
 	return networkpolicy
 }
-

@@ -74,20 +74,97 @@ spec:
 apiVersion: project.djkormo.github.io/v1alpha1
 kind: ProjectNetworkPolicyTemplate
 metadata:
-  name: projectnetpoltemplate-sample-1
+  name: projectnetpoltemplate-deny-ingress
 spec:
   excludeNamespaces:
     - kube-system
     - elastic-system
     - default
   policySpec:
-    podSelector: {}
+    podSelector:
+      matchLabels: {}
+    policyTypes:
+    - Ingress
+---
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectNetworkPolicyTemplate
+metadata:
+  name: projectnetpoltemplate-deny-egress
+spec:
+  excludeNamespaces:
+    - kube-system
+    - elastic-system
+    - default
+  policySpec:
+    podSelector:
+      matchLabels: {}
     policyTypes:
     - Egress
+---
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectNetworkPolicyTemplate
+metadata:
+  name: projectnetpoltemplate-allow-dns
+spec:
+  excludeNamespaces:
+    - kube-system
+    - elastic-system
+    - default
+  policySpec:
+    podSelector:
+      matchLabels: {}
+    policyTypes:
+    - Egress
+    egress:
+    - to:
+      - namespaceSelector:
+          matchLabels:
+            name: kube-system
+      ports:
+      - protocol: UDP
+        port: 53
 ```
 
 
 ## 4. TODO Adding fields to our Project Network Policy CRD
+
+```yaml
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectNetworkPolicy
+metadata:
+  name: projectnetpol-sample-1
+  labels:
+    app: project-sample-label-1
+  annotations:
+    "co.elastic.logs/multiline.type": "true"
+    "co.elastic.logs/multiline.pattern": "true"
+    "co.elastic.logs/multiline.negate": "true"
+    "co.elastic.logs/multiline.match": "true"
+spec:
+  projectName: project-sample-1
+  networkPolicies:
+    - projectnetpoltemplate-deny-ingress
+    - projectnetpoltemplate-deny-egress
+    - projectnetpoltemplate-allow-dns
+---
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectNetworkPolicy
+metadata:
+  name: projectnetpol-sample-2
+  labels:
+    app: project-sample-label-2
+  annotations:
+    "co.elastic.logs/multiline.type": "true"
+    "co.elastic.logs/multiline.pattern": "true"
+    "co.elastic.logs/multiline.negate": "true"
+    "co.elastic.logs/multiline.match": "true"
+spec:
+  projectName: project-sample-2
+  networkPolicies:
+    - projectnetpoltemplate-deny-egress
+    - projectnetpoltemplate-allow-dns
+
+```
 
 ## 5. Change in file api/v1alpha1/project_types.go
 Remove Foo field 
