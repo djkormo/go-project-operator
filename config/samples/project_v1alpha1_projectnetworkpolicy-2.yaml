@@ -4,6 +4,7 @@ metadata:
   name: projectnetpol-sample-2
   labels:
     app: project-sample-label-2
+    project-operator/pauseReconciliation: "false"
   annotations:
     "co.elastic.logs/multiline.type": "true"
     "co.elastic.logs/multiline.pattern": "true"

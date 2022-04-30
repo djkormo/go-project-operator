@@ -36,6 +36,11 @@ import (
 	projectv1alpha1 "github.com/djkormo/go-project-operator/api/v1alpha1"
 )
 
+// for pausing  operator loop
+const (
+	pauseReconciliationLabel = "project-operator/pauseReconciliation"
+)
+
 // ProjectReconciler reconciles a Project object
 type ProjectReconciler struct {
 	client.Client
@@ -79,6 +84,13 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		}
 		logger.Error(err, "Failed to get Project Operator instance")
 		return ctrl.Result{}, err
+	}
+
+	// exit if pause reconciliation label is set to true
+	if v, ok := Project.Labels[pauseReconciliationLabel]; ok && v == "true" {
+		logger.Info("Not reconciling Project: labels", pauseReconciliationLabel, "is true")
+
+		return ctrl.Result{}, nil
 	}
 
 	// Find if namespace exists

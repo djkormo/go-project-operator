@@ -18,9 +18,8 @@ package controllers
 
 import (
 	"context"
-	"reflect"
-
 	networkingv1 "k8s.io/api/networking/v1"
+	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -71,6 +70,12 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 		}
 		logger.Error(err, "Failed to get Project Operator instance for NetworkPolicy")
 		return ctrl.Result{}, err
+	}
+	// exit if pause reconciliation label is set to true
+	if v, ok := ProjectNetworkPolicy.Labels[pauseReconciliationLabel]; ok && v == "true" {
+		logger.Info("Not reconciling ProjectNetworkPolicy: labels", pauseReconciliationLabel, "is true")
+
+		return ctrl.Result{}, nil
 	}
 
 	// Get array of networkpolicie names
@@ -135,24 +140,27 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 			return ctrl.Result{}, err
 		}
 
-		// TODO UPDATE LOGIC
+		// UPDATE LOGIC
 		logger.Info("Update NetworkPolicy", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpolnamespace)
 
 		netpol := r.networkpolicyForProjectApp(ProjectNetworkPolicy, netpolname, projectNetworkPolicyTemplateFound) // networkpolicyForProjectApp() returns a NetworkPolicy
 		labels := ProjectNetworkPolicy.GetLabels()
 		annotations := ProjectNetworkPolicy.GetAnnotations()
-		// TODO not working good
+
 		netpolspec := projectNetworkPolicyTemplateFound.Spec.PolicySpec
 
 		netpol_unchanged_labels := IsMapSubset(networkPolicyFound.ObjectMeta.Labels, labels)
 		netpol_unchanged_annotations := IsMapSubset(networkPolicyFound.ObjectMeta.Annotations, annotations)
-		netpol_unchanged_spec := reflect.DeepEqual(netpolspec, networkPolicyFound.Spec)
+		netpol_unchanged_spec := false
+		if equality.Semantic.DeepDerivative(netpolspec, networkPolicyFound.Spec) {
+			netpol_unchanged_spec = true
+		}
 
 		if !(netpol_unchanged_labels && netpol_unchanged_annotations && netpol_unchanged_spec) {
 			logger.Info("Update NetworkPolicy changed", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpolnamespace)
 			logger.Info("Update NetworkPolicy changed", "NetworkPolicy.Name", netpolname, "NetworkPolicy.netpol_unchanged_labels", netpol_unchanged_labels)
 			logger.Info("Update NetworkPolicy changed", "NetworkPolicy.Name", netpolname, "NetworkPolicy.netpol_unchanged_annotations", netpol_unchanged_annotations)
-			logger.Info("TODO Update NetworkPolicy changed", "NetworkPolicy.Name", netpolname, "NetworkPolicy.netpol_unchanged_spec", netpol_unchanged_spec)
+			logger.Info("Update NetworkPolicy changed", "NetworkPolicy.Name", netpolname, "NetworkPolicy.netpol_unchanged_spec", netpol_unchanged_spec)
 			if !netpol_unchanged_labels {
 				logger.Info("Desired labels ", "Labels:", labels)
 				logger.Info("Actual labels ", "Labels:", networkPolicyFound.ObjectMeta.Labels)
@@ -165,8 +173,8 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 			}
 			if !netpol_unchanged_spec {
 
-				logger.Info("TODO Desired spec", "Specification:", netpolspec)
-				logger.Info("TODO Actual spec", "Specification:", networkPolicyFound.Spec)
+				logger.Info("Desired spec", "Specification:", netpolspec)
+				logger.Info("Actual spec", "Specification:", networkPolicyFound.Spec)
 			}
 
 			netpol.ObjectMeta.Labels = labels
@@ -178,7 +186,7 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 				return ctrl.Result{}, err
 			}
 		} else {
-			logger.Info("TODO Update NetworkPolicy unchanged", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpolnamespace)
+			logger.Info("Update NetworkPolicy unchanged", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpolnamespace)
 			return ctrl.Result{Requeue: true}, nil
 
 		}
