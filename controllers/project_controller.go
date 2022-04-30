@@ -88,7 +88,7 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	// exit if pause reconciliation label is set to true
 	if v, ok := Project.Labels[pauseReconciliationLabel]; ok && v == "true" {
-		logger.Info("Not reconciling Project: labels", pauseReconciliationLabel, "is true")
+		logger.Info("Not reconciling Project: label", pauseReconciliationLabel, "is true")
 
 		return ctrl.Result{}, nil
 	}

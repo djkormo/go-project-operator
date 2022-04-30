@@ -73,7 +73,7 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 	}
 	// exit if pause reconciliation label is set to true
 	if v, ok := ProjectNetworkPolicy.Labels[pauseReconciliationLabel]; ok && v == "true" {
-		logger.Info("Not reconciling ProjectNetworkPolicy: labels", pauseReconciliationLabel, "is true")
+		logger.Info("Not reconciling ProjectNetworkPolicy: label", pauseReconciliationLabel, "is true")
 
 		return ctrl.Result{}, nil
 	}
@@ -152,6 +152,7 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 		netpol_unchanged_labels := IsMapSubset(networkPolicyFound.ObjectMeta.Labels, labels)
 		netpol_unchanged_annotations := IsMapSubset(networkPolicyFound.ObjectMeta.Annotations, annotations)
 		netpol_unchanged_spec := false
+		// https://github.com/kubernetes-sigs/kubebuilder/issues/592
 		if equality.Semantic.DeepDerivative(netpolspec, networkPolicyFound.Spec) {
 			netpol_unchanged_spec = true
 		}
