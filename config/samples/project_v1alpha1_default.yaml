@@ -1,10 +1,10 @@
 apiVersion: project.djkormo.github.io/v1alpha1
 kind: Project
 metadata:
-  name: project-sample-1
+  name: default
   namespace: project-operator
   labels:
-    app: project-sample-label-1
+    app: project-default
     project-operator/pauseReconciliation: "false"
   annotations:
     "co.elastic.logs/multiline.type": "true"

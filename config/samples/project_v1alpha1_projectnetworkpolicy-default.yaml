@@ -1,9 +1,9 @@
 apiVersion: project.djkormo.github.io/v1alpha1
 kind: ProjectNetworkPolicy
 metadata:
-  name: projectnetpol-sample-1
+  name: projectnetpol-default
   labels:
-    app: project-sample-label-1
+    app: project-default
     project-operator/pauseReconciliation: "false"
   annotations:
     "co.elastic.logs/multiline.type": "true"
@@ -11,11 +11,7 @@ metadata:
     "co.elastic.logs/multiline.negate": "true"
     "co.elastic.logs/multiline.match": "true"
 spec:
-  projectName: project-sample-1
+  projectName: default
   networkPolicies:
-    - projectnetpoltemplate-deny-ingress
-    - projectnetpoltemplate-deny-egress
     - projectnetpoltemplate-allow-dns
-    - projectnetpoltemplate-fake-policy
-
-
+    - projectnetpoltemplate-deny-ingress

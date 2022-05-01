@@ -6,7 +6,7 @@ spec:
   excludeNamespaces:
     - kube-system
     - elastic-system
-    - default
+  #  - default
   policySpec:
     podSelector:
       matchLabels: {}

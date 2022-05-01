@@ -18,6 +18,9 @@ package controllers
 
 import (
 	"context"
+
+	//corev1 "k8s.io/api/core/v1"
+	//v1 "k8s.io/api/apps/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/equality"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -60,6 +63,7 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 	// fetch the ProjectNetworkPolicy CR instance
 	ProjectNetworkPolicy := &projectv1alpha1.ProjectNetworkPolicy{}
 	err := r.Get(ctx, req.NamespacedName, ProjectNetworkPolicy)
+
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
@@ -74,29 +78,39 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 	// exit if pause reconciliation label is set to true
 	if v, ok := ProjectNetworkPolicy.Labels[pauseReconciliationLabel]; ok && v == "true" {
 		logger.Info("Not reconciling ProjectNetworkPolicy: label", pauseReconciliationLabel, "is true")
-
 		return ctrl.Result{}, nil
 	}
 
-	// Get array of networkpolicie names
+	// Get array of networkpolicies names
 	netpolnames := ProjectNetworkPolicy.Spec.NetworkPolicies
-	logger.Info("List of NetworkPolicy names", "NetworkPolicy.Names", netpolnames)
+	logger.Info("List of NetworkPolicy names", "NetworkPolicy.Name", netpolnames)
 
 	// Get namespace for of network policy
 	netpolnamespace := ProjectNetworkPolicy.Spec.ProjectName
 	logger.Info("Namespace for NetworkPolicy", "NetworkPolicy.Namespace", netpolnamespace)
 
-	// TODO
+	// TODO Checking if namespace exists
+	// Fetch the Namespace
+	//namespace := &v1.Namespace{}
+	//err = r.Get(ctx,req.NamespacedName, namespace)
+
+	//nsList := &v1.Namespace{}
+	//if err != nil {
+	//	if errors.IsNotFound(err) {
+	//		logger.Error(err, "Failed to get Namespace", "Namespace.Name", netpolnamespace)
+	//		return ctrl.Result{}, err
+	//	}
+	//}
 
 	// Find if network policy exists
 	networkPolicyFound := &networkingv1.NetworkPolicy{}
-	// Find if projetc network policy template exists
+	// Find if project network policy template exists
 	projectNetworkPolicyTemplateFound := &projectv1alpha1.ProjectNetworkPolicyTemplate{}
 
-	// Iterate through policy names
+	// Iterate through policy names in ProjectNetworkPolicy
 	for _, netpolname := range netpolnames {
 
-		logger.Info("Checking NetworkPolicy", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpolnamespace)
+		logger.Info("Checking state of NetworkPolicy", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpolnamespace)
 
 		// get network policy template
 		netpoltemp_err := r.Get(ctx, types.NamespacedName{
@@ -106,9 +120,11 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 
 		if netpoltemp_err == nil {
 
-			logger.Info("Network policy spec:", "NetworkPolicy", projectNetworkPolicyTemplateFound.Spec.PolicySpec, "NetworkPolicy.Name", projectNetworkPolicyTemplateFound.Name)
+			logger.Info("Network policy spec:", "NetworkPolicy.Spec", projectNetworkPolicyTemplateFound.Spec.PolicySpec, "NetworkPolicy.Name", projectNetworkPolicyTemplateFound.Name)
+			logger.Info("Network policy :", "Excluded namespaces", projectNetworkPolicyTemplateFound.Spec.ExcludeNamespaces, "NetworkPolicy.Name", projectNetworkPolicyTemplateFound.Name)
+
 		}
-		// NetworkPolicyTemplate does'not exist
+		// NetworkPolicyTemplate does not exist
 		if netpoltemp_err != nil && errors.IsNotFound(netpoltemp_err) {
 			logger.Info("Not existing ProjectNetworkPolicyTemplate", "ProjectNetworkPolicyTemplate.Name", netpolname)
 			logger.Info("Skipping creation of NetworkPolicy", "NetworkPolicy.Name", netpolname)
@@ -119,7 +135,25 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 		err = r.Get(ctx, types.NamespacedName{
 			Name: netpolname, Namespace: netpolnamespace}, networkPolicyFound)
 
+		// CREATE NETPOL LOGIC START
 		if err != nil && errors.IsNotFound(err) {
+
+			//Checking if namespace is exluded
+
+			excluded_namespace := netpolnamespace
+
+			isExclude := false
+			for _, e_namespace := range projectNetworkPolicyTemplateFound.Spec.ExcludeNamespaces {
+				if e_namespace == excluded_namespace {
+					isExclude = true
+				}
+			}
+			if isExclude {
+				logger.Info("Skipping creating networkpolicy", "Excluded namespace", netpolnamespace)
+				continue
+			}
+
+			// checking if namespace is exluded
 
 			// Define new networkpolicy
 			netpol := r.networkpolicyForProjectApp(ProjectNetworkPolicy, netpolname, projectNetworkPolicyTemplateFound) // networkpolicyForProjectApp() returns a network policy
@@ -132,7 +166,6 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 			}
 			// in case of success
 			logger.Info("NetworkPolicy created", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpol.Namespace)
-			return ctrl.Result{Requeue: true}, nil
 
 		} else if err != nil {
 			logger.Error(err, "Failed to get NetworkPolicy")
@@ -140,7 +173,9 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 			return ctrl.Result{}, err
 		}
 
-		// UPDATE LOGIC
+		// CREATE NETPOL LOGIC END
+
+		// UPDATE NETPOL LOGIC START
 		logger.Info("Update NetworkPolicy", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpolnamespace)
 
 		netpol := r.networkpolicyForProjectApp(ProjectNetworkPolicy, netpolname, projectNetworkPolicyTemplateFound) // networkpolicyForProjectApp() returns a NetworkPolicy
@@ -188,11 +223,9 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 			}
 		} else {
 			logger.Info("Update NetworkPolicy unchanged", "NetworkPolicy.Name", netpolname, "NetworkPolicy.Namespace", netpolnamespace)
-			return ctrl.Result{Requeue: true}, nil
 
 		}
-
-		//return ctrl.Result{Requeue: true}, nil
+		// UPDATE NETPOL LOGIC END
 
 	} //of or _, netpolname := range netpolnames
 
