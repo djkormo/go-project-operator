@@ -39,6 +39,12 @@ spec:
           rule:
             description: ProjectRoleTemplateSpec defines the desired state of ProjectRoleTemplate
             properties:
+              excludeNamespaces:
+                description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+                  Important: Run "make" to regenerate code after modifying this file'
+                items:
+                  type: string
+                type: array
               roleRules:
                 items:
                   description: PolicyRule holds information that describes a policy

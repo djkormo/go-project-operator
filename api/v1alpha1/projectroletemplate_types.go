@@ -28,7 +28,7 @@ import (
 type ProjectRoleTemplateRule struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
+    ExcludeNamespaces []string `json:"excludeNamespaces,omitempty"`
 	RoleRules []v1.PolicyRule `json:"roleRules,omitempty"`
 }
 

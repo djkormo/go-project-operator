@@ -213,6 +213,10 @@ kind: ProjectRoleTemplate
 metadata:
   name: projectroletemplate-sample-1
 rule:
+  excludeNamespaces:
+    - kube-system
+    - elastic-system
+    - default
   roleRules:
     - apiGroups:
         - ""
@@ -251,10 +255,7 @@ rule:
         - services
         - statefulsets
       verbs: ["*"]
-
 ```
-
-
 
 ## 9. Regenerate crds and all manifests
 
