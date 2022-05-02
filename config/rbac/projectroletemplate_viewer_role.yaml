@@ -1,0 +1,20 @@
+# permissions for end users to view projectroletemplates.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: projectroletemplate-viewer-role
+rules:
+- apiGroups:
+  - project.djkormo.github.io
+  resources:
+  - projectroletemplates
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - project.djkormo.github.io
+  resources:
+  - projectroletemplates/status
+  verbs:
+  - get

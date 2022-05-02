@@ -25,6 +25,10 @@ operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectNetwork
 
 operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectNetworkPolicy
 
+operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectRoleTemplate
+
+
+
 ```
 
 ## 2. Adding fields to our Project CRD
@@ -200,14 +204,66 @@ type ProjectNetworkPolicyTemplateSpec struct {
 
 ## 7. TODO Change crd for policy network policy
 
-## 8. Regenerate crds and all manifests
+
+## 8. CRD for Project Role Template
+
+```yaml
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectRoleTemplate
+metadata:
+  name: projectroletemplate-sample-1
+rule:
+  roleRules:
+    - apiGroups:
+        - ""
+        - apps
+        - autoscaling
+        - batch
+        - extensions
+        - policy
+        - rbac.authorization.k8s.io
+        - networking.k8s.io
+        - storage.k8s.io
+        - metrics.k8s.io
+      resources:
+        - componentstatuses
+        - configmaps
+        - daemonsets
+        - deployments
+        - events
+        - endpoints
+        - horizontalpodautoscalers
+        - ingresses
+        - jobs
+        - limitranges
+        - namespaces
+        - nodes
+        - pods
+        - pods/log
+        - pods/exec
+        - persistentvolumes
+        - persistentvolumeclaims
+        - resourcequotas
+        - replicasets
+        - replicationcontrollers
+        - secrets
+        - serviceaccounts
+        - services
+        - statefulsets
+      verbs: ["*"]
+
+```
+
+
+
+## 9. Regenerate crds and all manifests
 
 ```console
 make generate
 make manifests
 ```
 
-## 9. Add operator logic via Reconciler Loop
+## 10. Add operator logic via Reconciler Loop
 
 ```go
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {

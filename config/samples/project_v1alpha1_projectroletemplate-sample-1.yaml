@@ -1,0 +1,44 @@
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectRoleTemplate
+metadata:
+  name: projectroletemplate-sample-1
+rule:
+  roleRules:
+    - apiGroups:
+        - ""
+        - apps
+        - autoscaling
+        - batch
+        - extensions
+        - policy
+        - rbac.authorization.k8s.io
+        - networking.k8s.io
+        - storage.k8s.io
+        - metrics.k8s.io
+      resources:
+        - componentstatuses
+        - configmaps
+        - daemonsets
+        - deployments
+        - events
+        - endpoints
+        - horizontalpodautoscalers
+        - ingresses
+        - jobs
+        - limitranges
+        - namespaces
+        - nodes
+        - pods
+        - pods/log
+        - pods/exec
+        - persistentvolumes
+        - persistentvolumeclaims
+        - resourcequotas
+        - replicasets
+        - replicationcontrollers
+        - secrets
+        - serviceaccounts
+        - services
+        - statefulsets
+      verbs: ["*"]
+

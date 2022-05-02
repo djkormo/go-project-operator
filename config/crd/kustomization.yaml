@@ -5,6 +5,7 @@ resources:
 - bases/project.djkormo.github.io_projects.yaml
 - bases/project.djkormo.github.io_projectnetworkpolicytemplates.yaml
 - bases/project.djkormo.github.io_projectnetworkpolicies.yaml
+- bases/project.djkormo.github.io_projectroletemplates.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
@@ -13,6 +14,7 @@ patchesStrategicMerge:
 #- patches/webhook_in_projects.yaml
 #- patches/webhook_in_projectnetworkpolicies.yaml
 #- patches/webhook_in_projectnetworkpolicytemplates.yaml
+#- patches/webhook_in_projectroletemplates.yaml
 #+kubebuilder:scaffold:crdkustomizewebhookpatch
 
 # [CERTMANAGER] To enable cert-manager, uncomment all the sections with [CERTMANAGER] prefix.
@@ -20,6 +22,7 @@ patchesStrategicMerge:
 #- patches/cainjection_in_projects.yaml
 #- patches/cainjection_in_projectnetworkpolicies.yaml
 #- patches/cainjection_in_projectnetworkpolicytemplates.yaml
+#- patches/cainjection_in_projectroletemplates.yaml
 #+kubebuilder:scaffold:crdkustomizecainjectionpatch
 
 # the following config is for teaching kustomize how to do kustomization for CRDs.
