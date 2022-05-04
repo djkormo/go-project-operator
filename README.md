@@ -27,7 +27,7 @@ operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectNetwork
 
 operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectRoleTemplate
 
-
+operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectRole
 
 ```
 
@@ -205,7 +205,7 @@ type ProjectNetworkPolicyTemplateSpec struct {
 ## 7. TODO Change crd for policy network policy
 
 
-## 8. CRD for Project Role Template
+## 8. CR for Project Role Template
 
 ```yaml
 apiVersion: project.djkormo.github.io/v1alpha1
@@ -257,14 +257,31 @@ rule:
       verbs: ["*"]
 ```
 
-## 9. Regenerate crds and all manifests
+
+## 9. CR for Project Role
+
+```yaml
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectRole
+metadata:
+  name: projectrole-sample-1
+  labels:
+    app: project-sample-label-1
+    project-operator/pauseReconciliation: "false"
+spec:
+  projectName: project-sample-1
+  roles:
+    - projectroletemplate-sample-1
+```
+
+## 10. Regenerate crds and all manifests
 
 ```console
 make generate
 make manifests
 ```
 
-## 10. Add operator logic via Reconciler Loop
+## 11. Add operator logic via Reconciler Loop
 
 ```go
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {

@@ -41,4 +41,13 @@ resources:
   kind: ProjectRoleTemplate
   path: github.com/djkormo/go-project-operator/api/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: djkormo.github.io
+  group: project
+  kind: ProjectRole
+  path: github.com/djkormo/go-project-operator/api/v1alpha1
+  version: v1alpha1
 version: "3"

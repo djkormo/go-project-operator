@@ -5,4 +5,5 @@ resources:
 - project_v1alpha1_projectnetworkpolicytemplate.yaml
 - project_v1alpha1_projectnetworkpolicy.yaml
 - project_v1alpha1_projectroletemplate.yaml
+- project_v1alpha1_projectrole.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

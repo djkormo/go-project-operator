@@ -5,24 +5,23 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
-  name: projectnetworkpolicies.project.djkormo.github.io
+  name: projectroles.project.djkormo.github.io
 spec:
   group: project.djkormo.github.io
   names:
-    kind: ProjectNetworkPolicy
-    listKind: ProjectNetworkPolicyList
-    plural: projectnetworkpolicies
+    kind: ProjectRole
+    listKind: ProjectRoleList
+    plural: projectroles
     shortNames:
-    - projnetpol
-    - prnetpol
-    singular: projectnetworkpolicy
+    - projrole
+    - prrole
+    singular: projectrole
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: ProjectNetworkPolicy is the Schema for the projectnetworkpolicies
-          API
+        description: ProjectRole is the Schema for the projectroles API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -37,20 +36,17 @@ spec:
           metadata:
             type: object
           spec:
-            description: ProjectNetworkPolicySpec defines the desired state of ProjectNetworkPolicy
+            description: ProjectRoleSpec defines the desired state of ProjectRole
             properties:
-              networkPolicies:
+              projectName:
+                type: string
+              roles:
                 items:
                   type: string
                 type: array
-              projectName:
-                description: Foo is an example field of ProjectNetworkPolicy. Edit
-                  projectnetworkpolicy_types.go to remove/update
-                type: string
             type: object
           status:
-            description: ProjectNetworkPolicyStatus defines the observed state of
-              ProjectNetworkPolicy
+            description: ProjectRoleStatus defines the observed state of ProjectRole
             type: object
         type: object
     served: true

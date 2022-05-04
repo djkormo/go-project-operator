@@ -41,7 +41,7 @@ type ProjectNetworkPolicyStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:resource:shortName=projnetpol
+//+kubebuilder:resource:shortName=projnetpol;prnetpol
 
 // ProjectNetworkPolicy is the Schema for the projectnetworkpolicies API
 type ProjectNetworkPolicy struct {

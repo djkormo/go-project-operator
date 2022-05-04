@@ -1,0 +1,11 @@
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectRole
+metadata:
+  name: projectrole-sample-2
+  labels:
+    app: project-sample-label-2
+    project-operator/pauseReconciliation: "true"
+spec:
+  projectName: project-sample-2
+  roles:
+    - projectroletemplate-sample-1

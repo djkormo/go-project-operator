@@ -17,50 +17,49 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// ProjectRoleTemplateSpec defines the desired state of ProjectRoleTemplate
-type ProjectRoleTemplateRule struct {
+// ProjectRoleSpec defines the desired state of ProjectRole
+type ProjectRoleSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	ExcludeNamespaces []string        `json:"excludeNamespaces,omitempty"`
-	RoleRules         []v1.PolicyRule `json:"roleRules,omitempty"`
+
+	ProjectName string   `json:"projectName,omitempty"`
+	Roles       []string `json:"roles,omitempty"`
 }
 
-// ProjectRoleTemplateStatus defines the observed state of ProjectRoleTemplate
-type ProjectRoleTemplateStatus struct {
+// ProjectRoleStatus defines the observed state of ProjectRole
+type ProjectRoleStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:resource:singular=projectroletemplate
-//+kubebuilder:resource:shortName=projroletemplate;projroletemp;prroletemp
+//+kubebuilder:resource:shortName=projrole;prrole
 
-// ProjectRoleTemplate is the Schema for the projectroletemplates API
-type ProjectRoleTemplate struct {
+// ProjectRole is the Schema for the projectroles API
+type ProjectRole struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Rule   ProjectRoleTemplateRule   `json:"rule,omitempty"`
-	Status ProjectRoleTemplateStatus `json:"status,omitempty"`
+	Spec   ProjectRoleSpec   `json:"spec,omitempty"`
+	Status ProjectRoleStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// ProjectRoleTemplateList contains a list of ProjectRoleTemplate
-type ProjectRoleTemplateList struct {
+// ProjectRoleList contains a list of ProjectRole
+type ProjectRoleList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []ProjectRoleTemplate `json:"items"`
+	Items           []ProjectRole `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&ProjectRoleTemplate{}, &ProjectRoleTemplateList{})
+	SchemeBuilder.Register(&ProjectRole{}, &ProjectRoleList{})
 }
