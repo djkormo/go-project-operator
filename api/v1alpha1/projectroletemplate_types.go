@@ -17,8 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/api/rbac/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -28,8 +28,8 @@ import (
 type ProjectRoleTemplateRule struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-    ExcludeNamespaces []string `json:"excludeNamespaces,omitempty"`
-	RoleRules []v1.PolicyRule `json:"roleRules,omitempty"`
+	ExcludeNamespaces []string        `json:"excludeNamespaces,omitempty"`
+	RoleRules         []v1.PolicyRule `json:"roleRules,omitempty"`
 }
 
 // ProjectRoleTemplateStatus defines the observed state of ProjectRoleTemplate
@@ -48,7 +48,7 @@ type ProjectRoleTemplate struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Rule   ProjectRoleTemplateRule  `json:"rule,omitempty"`
+	Rule   ProjectRoleTemplateRule   `json:"rule,omitempty"`
 	Status ProjectRoleTemplateStatus `json:"status,omitempty"`
 }
 
