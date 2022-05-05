@@ -10,8 +10,14 @@ flowchart LR;
 
 ```mermaid
 flowchart LR;
-    ProjectNetworkPolicy--ProjectnetworkPolicyTemplateOne--create/update/delete-->NetworkPolicy-1
-    ProjectNetworkPolicy--ProjectnetworkPolicyTemplateTwo--create/update/delete-->NetworkPolicy-2
+    ProjectNetworkPolicy--ProjectNetworkPolicyTemplateOne-->NetworkPolicyOne
+    ProjectNetworkPolicy--ProjectNetworkPolicyTemplateTwo-->NetworkPolicyTwo
+```
+
+```mermaid
+flowchart LR;
+    ProjectRole--ProjectRoleTemplateOne-->RoleOne
+    ProjectRole--ProjectRoleTemplateTwo-->RoleTwo
 ```
 
 ## 1. Creating templates for operator
