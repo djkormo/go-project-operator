@@ -28,8 +28,9 @@ type ProjectNetworkPolicySpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of ProjectNetworkPolicy. Edit projectnetworkpolicy_types.go to remove/update
-	ProjectName     string   `json:"projectName,omitempty"`
+	// Project name
+	ProjectName string `json:"projectName,omitempty"`
+	// Network Policy names
 	NetworkPolicies []string `json:"networkPolicies,omitempty"`
 }
 

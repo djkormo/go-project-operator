@@ -39,9 +39,7 @@ spec:
             description: ProjectRoleSpec defines the desired state of ProjectRole
             properties:
               projectName:
-                description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                  Important: Run "make" to regenerate code after modifying this file
-                  Project name'
+                description: Project name
                 type: string
               roles:
                 description: Role names array

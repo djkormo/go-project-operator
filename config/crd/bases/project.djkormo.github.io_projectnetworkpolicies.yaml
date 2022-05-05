@@ -40,12 +40,12 @@ spec:
             description: ProjectNetworkPolicySpec defines the desired state of ProjectNetworkPolicy
             properties:
               networkPolicies:
+                description: Network Policy names
                 items:
                   type: string
                 type: array
               projectName:
-                description: Foo is an example field of ProjectNetworkPolicy. Edit
-                  projectnetworkpolicy_types.go to remove/update
+                description: Project name
                 type: string
             type: object
           status:

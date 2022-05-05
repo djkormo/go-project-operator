@@ -29,9 +29,10 @@ type ProjectNetworkPolicyTemplateSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of ProjectNetworkPolicyTemplate. Edit projectnetworkpolicytemplate_types.go to remove/update
-	ExcludeNamespaces []string                       `json:"excludeNamespaces,omitempty"`
-	PolicySpec        networkingv1.NetworkPolicySpec `json:"policySpec"`
+	// Exclude namespaces
+	ExcludeNamespaces []string `json:"excludeNamespaces,omitempty"`
+	// Network Policy specitifation
+	PolicySpec networkingv1.NetworkPolicySpec `json:"policySpec"`
 }
 
 // ProjectNetworkPolicyTemplateStatus defines the observed state of ProjectNetworkPolicyTemplate

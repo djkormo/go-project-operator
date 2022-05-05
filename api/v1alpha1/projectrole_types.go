@@ -27,6 +27,7 @@ import (
 type ProjectRoleSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
 	// Project name
 	ProjectName string `json:"projectName,omitempty"`
 	// Role names array

@@ -23,15 +23,29 @@ flowchart LR;
 ## 1. Creating templates for operator
 
 ```
+# initialise operator framework
+
 operator-sdk init --domain=djkormo.github.io --repo=github.com/djkormo/go-project-operator --skip-go-version-check
+
+# create Project API
 
 operator-sdk create api --group=project --version=v1alpha1 --kind=Project
 
+# create ProjectNetworkPolicyTemplate API
+# skip creating controller for ProjectNetworkPolicyTemplate
+
 operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectNetworkPolicyTemplate
+
+# create ProjectNetworkPolicy API
 
 operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectNetworkPolicy
 
+# create ProjectRoleTemplate API
+# skip creating controller for ProjectRoleTemplate
+
 operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectRoleTemplate
+
+# create ProjectRole API
 
 operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectRole
 
@@ -135,8 +149,7 @@ spec:
         port: 53
 ```
 
-
-## 4. TODO Adding fields to our Project Network Policy CRD
+## 4. Adding fields to our Project Network Policy CRD
 
 ```yaml
 apiVersion: project.djkormo.github.io/v1alpha1
@@ -151,7 +164,7 @@ metadata:
     "co.elastic.logs/multiline.negate": "true"
     "co.elastic.logs/multiline.match": "true"
 spec:
-  projectName: project-sample-1
+  projectName: project-sample-1 # reference to project
   networkPolicies:
     - projectnetpoltemplate-deny-ingress
     - projectnetpoltemplate-deny-egress
@@ -162,14 +175,14 @@ kind: ProjectNetworkPolicy
 metadata:
   name: projectnetpol-sample-2
   labels:
-    app: project-sample-label-2
+    app: project-sample-label-2 
   annotations:
     "co.elastic.logs/multiline.type": "true"
     "co.elastic.logs/multiline.pattern": "true"
     "co.elastic.logs/multiline.negate": "true"
     "co.elastic.logs/multiline.match": "true"
 spec:
-  projectName: project-sample-2
+  projectName: project-sample-2 # reference to project
   networkPolicies:
     - projectnetpoltemplate-deny-egress
     - projectnetpoltemplate-allow-dns
@@ -208,7 +221,18 @@ type ProjectNetworkPolicyTemplateSpec struct {
 ```
 
 
-## 7. TODO Change crd for policy network policy
+## 7. Change CRD for policy network policy
+
+```go
+type ProjectNetworkPolicySpec struct {
+	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
+	
+	ProjectName     string   `json:"projectName,omitempty"`
+	NetworkPolicies []string `json:"networkPolicies,omitempty"`
+}
+
+```
 
 
 ## 8. CR for Project Role Template
@@ -279,6 +303,35 @@ spec:
   roles:
     - projectroletemplate-sample-1
 ```
+
+## 10. Change CRD for project role template
+
+```go
+type ProjectRoleTemplateSpec struct {
+	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
+	// Exclude namespaces
+	ExcludeNamespaces []string `json:"excludeNamespaces,omitempty"`
+	// RBAC Role Rules
+	RoleRules []v1.PolicyRule `json:"roleRules,omitempty"`
+}
+
+```
+
+## 10. Change CRD for role 
+
+```go
+type ProjectRoleSpec struct {
+	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
+	// Project name
+	ProjectName string `json:"projectName,omitempty"`
+	// Role names array
+	Roles []string `json:"roles,omitempty"`
+}
+
+```
+
 
 ## 10. Regenerate crds and all manifests
 

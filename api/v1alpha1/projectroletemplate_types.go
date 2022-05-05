@@ -28,6 +28,7 @@ import (
 type ProjectRoleTemplateSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
 	// Exclude namespaces
 	ExcludeNamespaces []string `json:"excludeNamespaces,omitempty"`
 	// RBAC Role Rules

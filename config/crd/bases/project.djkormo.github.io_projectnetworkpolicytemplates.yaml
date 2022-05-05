@@ -42,13 +42,12 @@ spec:
               of ProjectNetworkPolicyTemplate
             properties:
               excludeNamespaces:
-                description: Foo is an example field of ProjectNetworkPolicyTemplate.
-                  Edit projectnetworkpolicytemplate_types.go to remove/update
+                description: Exclude namespaces
                 items:
                   type: string
                 type: array
               policySpec:
-                description: NetworkPolicySpec provides the specification of a NetworkPolicy
+                description: Network Policy specitifation
                 properties:
                   egress:
                     description: List of egress rules to be applied to the selected
