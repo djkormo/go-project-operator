@@ -58,7 +58,7 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 
 	logger := log.Log.WithValues(req.Namespace, req.NamespacedName)
 
-	logger.Info("Project operator Reconcile Network Policy method starts...")
+	logger.Info("Reconcile Network Policy method starts...")
 
 	// fetch the ProjectNetworkPolicy CR instance
 	ProjectNetworkPolicy := &projectv1alpha1.ProjectNetworkPolicy{}
@@ -90,17 +90,6 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 	logger.Info("Namespace for NetworkPolicy", "NetworkPolicy.Namespace", netpolnamespace)
 
 	// TODO Checking if namespace exists
-	// Fetch the Namespace
-	//namespace := &v1.Namespace{}
-	//err = r.Get(ctx,req.NamespacedName, namespace)
-
-	//nsList := &v1.Namespace{}
-	//if err != nil {
-	//	if errors.IsNotFound(err) {
-	//		logger.Error(err, "Failed to get Namespace", "Namespace.Name", netpolnamespace)
-	//		return ctrl.Result{}, err
-	//	}
-	//}
 
 	// Find if network policy exists
 	networkPolicyFound := &networkingv1.NetworkPolicy{}

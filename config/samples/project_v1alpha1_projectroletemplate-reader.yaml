@@ -1,8 +1,8 @@
 apiVersion: project.djkormo.github.io/v1alpha1
 kind: ProjectRoleTemplate
 metadata:
-  name: projectroletemplate-sample-1
-rule:
+  name: project-reader
+spec:
   excludeNamespaces:
     - kube-system
     - elastic-system
@@ -44,5 +44,5 @@ rule:
         - serviceaccounts
         - services
         - statefulsets
-      verbs: ["*"]
+      verbs: ["get","list","watch"]
 

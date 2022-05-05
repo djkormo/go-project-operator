@@ -69,7 +69,7 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	logger := log.Log.WithValues(req.Namespace, req.NamespacedName)
 
-	logger.Info("Project operator Reconcile method starts...")
+	logger.Info("Reconcile Project method starts...")
 
 	// fetch the Project CR instance
 	Project := &projectv1alpha1.Project{}

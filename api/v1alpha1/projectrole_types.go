@@ -27,9 +27,10 @@ import (
 type ProjectRoleSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
-	ProjectName string   `json:"projectName,omitempty"`
-	Roles       []string `json:"roles,omitempty"`
+	// Project name
+	ProjectName string `json:"projectName,omitempty"`
+	// Role names array
+	Roles []string `json:"roles,omitempty"`
 }
 
 // ProjectRoleStatus defines the observed state of ProjectRole

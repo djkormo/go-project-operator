@@ -25,11 +25,13 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // ProjectRoleTemplateSpec defines the desired state of ProjectRoleTemplate
-type ProjectRoleTemplateRule struct {
+type ProjectRoleTemplateSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	ExcludeNamespaces []string        `json:"excludeNamespaces,omitempty"`
-	RoleRules         []v1.PolicyRule `json:"roleRules,omitempty"`
+	// Exclude namespaces
+	ExcludeNamespaces []string `json:"excludeNamespaces,omitempty"`
+	// RBAC Role Rules
+	RoleRules []v1.PolicyRule `json:"roleRules,omitempty"`
 }
 
 // ProjectRoleTemplateStatus defines the observed state of ProjectRoleTemplate
@@ -48,7 +50,7 @@ type ProjectRoleTemplate struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Rule   ProjectRoleTemplateRule   `json:"rule,omitempty"`
+	Spec   ProjectRoleTemplateSpec   `json:"spec,omitempty"`
 	Status ProjectRoleTemplateStatus `json:"status,omitempty"`
 }
 

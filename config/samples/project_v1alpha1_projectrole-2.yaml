@@ -4,8 +4,8 @@ metadata:
   name: projectrole-sample-2
   labels:
     app: project-sample-label-2
-    project-operator/pauseReconciliation: "true"
+    project-operator/pauseReconciliation: "false"
 spec:
   projectName: project-sample-2
   roles:
-    - projectroletemplate-sample-1
+    - project-reader

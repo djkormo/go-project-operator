@@ -1,12 +1,12 @@
 apiVersion: project.djkormo.github.io/v1alpha1
 kind: ProjectRole
 metadata:
-  name: projectrole-sample-1
+  name: projectrole-default
   labels:
-    app: project-sample-label-1
+    app: project-sample-default
     project-operator/pauseReconciliation: "false"
 spec:
-  projectName: project-sample-1
+  projectName: default
   roles:
     - project-administrator
     - project-reader

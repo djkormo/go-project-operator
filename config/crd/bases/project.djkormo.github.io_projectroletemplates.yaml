@@ -37,16 +37,18 @@ spec:
             type: string
           metadata:
             type: object
-          rule:
+          spec:
             description: ProjectRoleTemplateSpec defines the desired state of ProjectRoleTemplate
             properties:
               excludeNamespaces:
                 description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                  Important: Run "make" to regenerate code after modifying this file'
+                  Important: Run "make" to regenerate code after modifying this file
+                  Exclude namespaces'
                 items:
                   type: string
                 type: array
               roleRules:
+                description: RBAC Role Rules
                 items:
                   description: PolicyRule holds information that describes a policy
                     rule, but does not contain information about who the rule applies
