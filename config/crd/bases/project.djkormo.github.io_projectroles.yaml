@@ -18,7 +18,11 @@ spec:
     singular: projectrole
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.projectName
+      name: ProjectName
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: ProjectRole is the Schema for the projectroles API

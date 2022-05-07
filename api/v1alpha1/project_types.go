@@ -27,8 +27,6 @@ import (
 
 // ProjectSpec defines the desired state of Project
 type ProjectSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
 
 	// ResourceQuota specification
 	ResourceQuota corev1.ResourceQuotaSpec `json:"resourceQuota"`

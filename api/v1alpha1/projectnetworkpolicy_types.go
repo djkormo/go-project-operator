@@ -27,7 +27,6 @@ import (
 type ProjectNetworkPolicySpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
 	// Project name
 	ProjectName string `json:"projectName,omitempty"`
 	// Network Policy names
@@ -43,6 +42,7 @@ type ProjectNetworkPolicyStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:shortName=projnetpol;prnetpol
+//+kubebuilder:printcolumn:name="ProjectName",type=string,JSONPath=`.spec.projectName`
 
 // ProjectNetworkPolicy is the Schema for the projectnetworkpolicies API
 type ProjectNetworkPolicy struct {

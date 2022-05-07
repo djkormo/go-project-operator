@@ -25,8 +25,6 @@ import (
 
 // ProjectRoleSpec defines the desired state of ProjectRole
 type ProjectRoleSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
 
 	// Project name
 	ProjectName string `json:"projectName,omitempty"`
@@ -36,13 +34,13 @@ type ProjectRoleSpec struct {
 
 // ProjectRoleStatus defines the observed state of ProjectRole
 type ProjectRoleStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:shortName=projrole;prrole
+//+kubebuilder:printcolumn:name="ProjectName",type=string,JSONPath=`.spec.projectName`
 
 // ProjectRole is the Schema for the projectroles API
 type ProjectRole struct {
