@@ -20,6 +20,12 @@ flowchart LR;
     ProjectRole--ProjectRoleTemplateTwo-->RoleTwo
 ```
 
+## 0. Project status badges
+
+[![project operator pipeline](https://github.com/djkormo/go-project-operator/actions/workflows/project-operator-all.yaml/badge.svg)](https://github.com/djkormo/go-project-operator/actions/workflows/project-operator-all.yaml)
+
+
+
 ## 1. Creating templates for operator
 
 ```
