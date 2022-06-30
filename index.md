@@ -1,4 +1,4 @@
-Using helm chart
+##Using helm chart
 
 ```
 helm repo add djkormo-go-project-operator https://djkormo.github.io/go-project-operator/
