@@ -11,4 +11,15 @@ entries:
     urls:
     - https://github.com/djkormo/go-project-operator/releases/download/chart-0.0.4/chart-0.0.4.tgz
     version: 0.0.4
+  go-project-operator:
+  - apiVersion: v2
+    appVersion: 0.0.6
+    created: "2022-06-30T18:17:24.038618469Z"
+    description: Project operator for Kubernetes in golang
+    digest: c43b5bbe835f3e7144931b6caac406d473ce279660e4d7493521ffa4fe9db145
+    name: go-project-operator
+    type: application
+    urls:
+    - https://github.com/djkormo/go-project-operator/releases/download/go-project-operator-0.0.6/go-project-operator-0.0.6.tgz
+    version: 0.0.6
 generated: "2022-06-30T18:06:06.859407227Z"
