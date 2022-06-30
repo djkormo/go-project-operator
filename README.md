@@ -28,33 +28,39 @@ flowchart LR;
 
 ## 1. Creating templates for operator
 
-```
-# initialise operator framework
+### 1.1 initialise operator framework
 
+```bash
 operator-sdk init --domain=djkormo.github.io --repo=github.com/djkormo/go-project-operator --skip-go-version-check
+```
 
-# create Project API
+### 1.2 create Project API
 
-operator-sdk create api --group=project --version=v1alpha1 --kind=Project
+```bash
+operator-sdk create api --group=project --version=v1alpha1 --kind=Project --controller --resource
+```
 
-# create ProjectNetworkPolicyTemplate API
-# skip creating controller for ProjectNetworkPolicyTemplate
+### 1.3 create ProjectNetworkPolicyTemplate API
+#### skip creating controller for ProjectNetworkPolicyTemplate
 
+```bash
 operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectNetworkPolicyTemplate
+```
+### 1.4 create ProjectNetworkPolicy API
 
-# create ProjectNetworkPolicy API
+```bash
+operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectNetworkPolicy --controller --resource
+```
+### 1.5 create ProjectRoleTemplate API
+#### skip creating controller for ProjectRoleTemplate
 
-operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectNetworkPolicy
-
-# create ProjectRoleTemplate API
-# skip creating controller for ProjectRoleTemplate
-
+```bash
 operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectRoleTemplate
+```
+### 1.6 create ProjectRole API
 
-# create ProjectRole API
-
-operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectRole
-
+```bash
+operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectRole --controller --resource
 ```
 
 ## 2. Adding fields to our Project CRD
@@ -392,11 +398,47 @@ make run
 make docker-build docker-push IMG="djkormo/go-project-operator:main"
 ```
 
-Making helm chart
+Making helm chart stub
 
 ```
-kustomize build config/default | helmify chart
+kustomize build config/default | helmify chart/go-project-operator
+
 ```
+Adding helm chart release
+
+```
+git tag 0.0.1
+git push origin --tags
+```
+
+Using helm chart
+
+```
+helm repo add djkormo-go-project-operator https://djkormo.github.io/go-project-operator/
+
+helm repo update
+
+helm search repo go-project-operator  --versions
+
+helm install go-project-operator djkormo-project/go-project-operator \
+  --namespace project-operator --values chart/go-project-operator/values.yaml --create-namespace --dry-run
+
+helm upgrade project-operator djkormo-project/go-project-operator \
+  --namespace project-operator --values chart/go-project-operator/values.yaml
+
+
+helm uninstall go-project-operator  --namespace project-operator 
+
+```
+
+Testing locally
+```
+helm lint chart/go-project-operator
+
+helm template chart/go-project-operator -n project-operator --values chart/go-project-operator/values.yaml
+```
+
+
 
 Literature:
 
