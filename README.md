@@ -24,6 +24,7 @@ flowchart LR;
 
 [![project operator pipeline](https://github.com/djkormo/go-project-operator/actions/workflows/project-operator-all.yaml/badge.svg)](https://github.com/djkormo/go-project-operator/actions/workflows/project-operator-all.yaml)
 
+[![Release helm charts](https://github.com/djkormo/go-project-operator/actions/workflows/helm-chart-releaser.yaml/badge.svg)](https://github.com/djkormo/go-project-operator/actions/workflows/helm-chart-releaser.yaml)
 
 
 ## 1. Creating templates for operator
