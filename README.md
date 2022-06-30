@@ -401,7 +401,7 @@ make docker-build docker-push IMG="djkormo/go-project-operator:main"
 Making helm chart stub
 
 ```
-kustomize build config/default | helmify chart/go-project-operator
+kustomize build config/default | helmify charts/go-project-operator
 
 ```
 Adding helm chart release
@@ -421,10 +421,10 @@ helm repo update
 helm search repo go-project-operator  --versions
 
 helm install go-project-operator djkormo-project/go-project-operator \
-  --namespace project-operator --values chart/go-project-operator/values.yaml --create-namespace --dry-run
+  --namespace project-operator --values charts/go-project-operator/values.yaml --create-namespace --dry-run
 
 helm upgrade project-operator djkormo-project/go-project-operator \
-  --namespace project-operator --values chart/go-project-operator/values.yaml
+  --namespace project-operator --values charts/go-project-operator/values.yaml
 
 
 helm uninstall go-project-operator  --namespace project-operator 
@@ -433,9 +433,9 @@ helm uninstall go-project-operator  --namespace project-operator
 
 Testing locally
 ```
-helm lint chart/go-project-operator
+helm lint charts/go-project-operator
 
-helm template chart/go-project-operator -n project-operator --values chart/go-project-operator/values.yaml
+helm template charts/go-project-operator -n project-operator --values charts/go-project-operator/values.yaml
 ```
 
 
