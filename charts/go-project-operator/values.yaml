@@ -12,7 +12,7 @@ controllerManager:
         memory: 64Mi
   manager:
     image:
-      repository: controller
+      repository: docker.io/djkormo/go-project-operator
       tag: latest
     resources:
       limits:
