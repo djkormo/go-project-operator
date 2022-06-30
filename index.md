@@ -7,10 +7,10 @@ helm repo update
 
 helm search repo go-project-operator  --versions
 
-helm install go-project-operator djkormo-project/go-project-operator \
+helm install go-project-operator djkormo-go-project-operator/go-project-operator \
   --namespace project-operator --values charts/go-project-operator/values.yaml --create-namespace --dry-run
 
-helm upgrade project-operator djkormo-project/go-project-operator \
+helm upgrade project-operator djkormo-go-project-operator/go-project-operator \
   --namespace project-operator --values charts/go-project-operator/values.yaml
 
 
