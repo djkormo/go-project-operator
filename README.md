@@ -396,7 +396,12 @@ make run
 ```
 
 ```
-make docker-build docker-push IMG="djkormo/go-project-operator:main"
+
+bash prepare-setup.sh
+make docker-build docker-push IMG=$IMG
+
+make docker-build docker-push IMG="docker.io/djkormo/go-project-operator:v0.0.6"
+
 ```
 
 Making helm chart stub
@@ -439,6 +444,20 @@ helm lint charts/go-project-operator
 helm template charts/go-project-operator -n project-operator --values charts/go-project-operator/values.yaml
 ```
 
+
+```console
+kubectl api-resources --api-group='project.djkormo.github.io' --sort-by=kind
+```
+
+<pre>
+NAME                            SHORTNAMES                                               APIVERSION
+                 NAMESPACED   KIND
+projects                        pr,proj                                                  project.djkormo.github.io/v1alpha1   true         Project
+projectnetworkpolicies          projnetpol,prnetpol                                      project.djkormo.github.io/v1alpha1   true         ProjectNetworkPolicy
+projectnetworkpolicytemplates   projectnetpoltemplate,projectnetpoltemp,projnetpoltemp   project.djkormo.github.io/v1alpha1   true         ProjectNetworkPolicyTemplate
+projectroles                    projrole,prrole                                          project.djkormo.github.io/v1alpha1   true         ProjectRole
+projectroletemplates            projroletemplate,projroletemp,prroletemp                 project.djkormo.github.io/v1alpha1   true         ProjectRoleTemplate
+</pre>
 
 
 Literature:

@@ -32,6 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	projectv1alpha1 "github.com/djkormo/go-project-operator/api/v1alpha1"
+	helpers "github.com/djkormo/go-project-operator/helpers"
 )
 
 // ProjectNetworkPolicyReconciler reconciles a ProjectNetworkPolicy object
@@ -173,8 +174,8 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 
 		netpolspec := projectNetworkPolicyTemplateFound.Spec.PolicySpec
 
-		netpol_unchanged_labels := IsMapSubset(networkPolicyFound.ObjectMeta.Labels, labels)
-		netpol_unchanged_annotations := IsMapSubset(networkPolicyFound.ObjectMeta.Annotations, annotations)
+		netpol_unchanged_labels := helpers.IsMapSubset(networkPolicyFound.ObjectMeta.Labels, labels)
+		netpol_unchanged_annotations := helpers.IsMapSubset(networkPolicyFound.ObjectMeta.Annotations, annotations)
 		netpol_unchanged_spec := false
 		// https://github.com/kubernetes-sigs/kubebuilder/issues/592
 		if equality.Semantic.DeepDerivative(netpolspec, networkPolicyFound.Spec) {

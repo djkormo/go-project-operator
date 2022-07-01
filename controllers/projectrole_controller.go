@@ -30,6 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	projectv1alpha1 "github.com/djkormo/go-project-operator/api/v1alpha1"
+	helpers "github.com/djkormo/go-project-operator/helpers"
 )
 
 // ProjectRoleReconciler reconciles a ProjectRole object
@@ -168,8 +169,8 @@ func (r *ProjectRoleReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 		rolespec := projectRoleTemplateFound.Spec.RoleRules
 
-		role_unchanged_labels := IsMapSubset(roleFound.ObjectMeta.Labels, labels)
-		role_unchanged_annotations := IsMapSubset(roleFound.ObjectMeta.Annotations, annotations)
+		role_unchanged_labels := helpers.IsMapSubset(roleFound.ObjectMeta.Labels, labels)
+		role_unchanged_annotations := helpers.IsMapSubset(roleFound.ObjectMeta.Annotations, annotations)
 		role_unchanged_spec := false
 		// https://github.com/kubernetes-sigs/kubebuilder/issues/592
 		if equality.Semantic.DeepDerivative(rolespec, roleFound.Rules) {

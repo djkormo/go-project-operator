@@ -18,27 +18,23 @@ package controllers
 
 import (
 	"context"
-	"encoding/json"
+	//	"encoding/json"
 	"reflect"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"fmt"
-
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	projectv1alpha1 "github.com/djkormo/go-project-operator/api/v1alpha1"
-)
-
-// for pausing  operator loop
-const (
-	pauseReconciliationLabel = "project-operator/pauseReconciliation"
+	helpers "github.com/djkormo/go-project-operator/helpers"
 )
 
 // ProjectReconciler reconciles a Project object
@@ -122,8 +118,8 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	resourcequotas := Project.Spec.ResourceQuota.Hard
 	limits := Project.Spec.LimitRange.Limits
 
-	ns_unchanged_labels := IsMapSubset(namespaceFound.ObjectMeta.Labels, labels)
-	ns_unchanged_annotations := IsMapSubset(namespaceFound.ObjectMeta.Annotations, annotations)
+	ns_unchanged_labels := helpers.IsMapSubset(namespaceFound.ObjectMeta.Labels, labels)
+	ns_unchanged_annotations := helpers.IsMapSubset(namespaceFound.ObjectMeta.Annotations, annotations)
 	if !(ns_unchanged_labels && ns_unchanged_annotations) {
 		logger.Info("Updating labels and annotation in namespace", "Name:", namespaceFound.Name)
 
@@ -174,10 +170,10 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	// This point, we have the resource quota object created
 	// Ensure the resource quota specification is the same as in Project object
 	// Ensure the project labels and annotations are the same as in Project object
-	rq_unchanged_labels := IsMapSubset(resourceQuotaFound.ObjectMeta.Labels, labels)
-	rq_unchanged_annotations := IsMapSubset(resourceQuotaFound.ObjectMeta.Annotations, annotations)
+	rq_unchanged_labels := helpers.IsMapSubset(resourceQuotaFound.ObjectMeta.Labels, labels)
+	rq_unchanged_annotations := helpers.IsMapSubset(resourceQuotaFound.ObjectMeta.Annotations, annotations)
 
-	rq_unchanged_spec := IsMapSubset(resourceQuotaFound.Spec.Hard, resourcequotas)
+	rq_unchanged_spec := helpers.IsMapSubset(resourceQuotaFound.Spec.Hard, resourcequotas)
 	if !(rq_unchanged_labels && rq_unchanged_annotations && rq_unchanged_spec) {
 		logger.Info("Updating resourceQuota", "Name:", resourceQuotaFound.Name)
 
@@ -235,8 +231,8 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	// Ensure the limit range specification is the same as in Project object
 	// Ensure the project labels and annotations are the same as in Project object
 
-	lr_unchanged_labels := IsMapSubset(limitRangeFound.ObjectMeta.Labels, labels)
-	lr_unchanged_annotations := IsMapSubset(limitRangeFound.ObjectMeta.Annotations, annotations)
+	lr_unchanged_labels := helpers.IsMapSubset(limitRangeFound.ObjectMeta.Labels, labels)
+	lr_unchanged_annotations := helpers.IsMapSubset(limitRangeFound.ObjectMeta.Annotations, annotations)
 	lr_unchanged_spec := reflect.DeepEqual(limitRangeFound.Spec.Limits, limits)
 
 	if !(lr_unchanged_labels && lr_unchanged_annotations && lr_unchanged_spec) {
@@ -322,101 +318,47 @@ func (r *ProjectReconciler) limitRangeForProjectApp(m *projectv1alpha1.Project) 
 	return limitRange
 }
 
+type UpdateEvent struct {
+	// ObjectOld is the object from the event.
+	ObjectOld runtime.Object
+
+	// ObjectNew is the object from the event.
+	ObjectNew runtime.Object
+}
+
+// Predicate filters events before enqueuing the keys.
+type Predicate interface {
+	Create(event.CreateEvent) bool
+	Delete(event.DeleteEvent) bool
+	Update(event.UpdateEvent) bool
+	Generic(event.GenericEvent) bool
+}
+
+// Funcs implements Predicate.
+type Funcs struct {
+	CreateFunc  func(event.CreateEvent) bool
+	DeleteFunc  func(event.DeleteEvent) bool
+	UpdateFunc  func(event.UpdateEvent) bool
+	GenericFunc func(event.GenericEvent) bool
+}
+
+func ignoreDeletionPredicate() predicate.Predicate {
+	return predicate.Funcs{
+		UpdateFunc: func(e event.UpdateEvent) bool {
+			// Ignore updates to CR status in which case metadata.Generation does not change
+			return e.ObjectOld.GetGeneration() != e.ObjectNew.GetGeneration()
+		},
+		DeleteFunc: func(e event.DeleteEvent) bool {
+			// Evaluates to false if the object has been confirmed deleted.
+			return !e.DeleteStateUnknown
+		},
+	}
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&projectv1alpha1.Project{}).
+		WithEventFilter(ignoreDeletionPredicate()).
 		Complete(r)
-}
-
-// https://stackoverflow.com/questions/67900919/check-if-a-map-is-subset-of-another-map
-func IsMapSubset(mapSet interface{}, mapSubset interface{}) bool {
-
-	mapSetValue := reflect.ValueOf(mapSet)
-	mapSubsetValue := reflect.ValueOf(mapSubset)
-
-	if fmt.Sprintf("%T", mapSet) != fmt.Sprintf("%T", mapSubset) {
-		return false
-	}
-
-	if len(mapSetValue.MapKeys()) < len(mapSubsetValue.MapKeys()) {
-		return false
-	}
-
-	if len(mapSubsetValue.MapKeys()) == 0 {
-		return true
-	}
-
-	iterMapSubset := mapSubsetValue.MapRange()
-
-	for iterMapSubset.Next() {
-		k := iterMapSubset.Key()
-		v := iterMapSubset.Value()
-
-		value := mapSetValue.MapIndex(k)
-
-		if !value.IsValid() || v.Interface() != value.Interface() {
-			return false
-		}
-	}
-
-	return true
-}
-
-//https://github.com/Myafq/limit-operator/blob/master/pkg/controller/clusterlimit/clusterlimit_controller.go
-
-func areTheSame(a []string, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for _, ae := range a {
-		if !includes(ae, b) {
-			return false
-		}
-	}
-	for _, be := range b {
-		if !includes(be, a) {
-			return false
-		}
-	}
-	return true
-}
-
-func includes(a string, b []string) bool {
-	for _, be := range b {
-		if a == be {
-			return true
-		}
-	}
-	return false
-}
-
-//https://gosamples.dev/compare-slices/
-func stringSlicesEqual(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func AreEqualJSON(s1, s2 string) (bool, error) {
-	var o1 interface{}
-	var o2 interface{}
-
-	var err error
-	err = json.Unmarshal([]byte(s1), &o1)
-	if err != nil {
-		return false, fmt.Errorf("error mashalling string 1 :: %s", err.Error())
-	}
-	err = json.Unmarshal([]byte(s2), &o2)
-	if err != nil {
-		return false, fmt.Errorf("error mashalling string 2 :: %s", err.Error())
-	}
-
-	return reflect.DeepEqual(o1, o2), nil
 }

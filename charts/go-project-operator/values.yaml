@@ -13,7 +13,7 @@ controllerManager:
   manager:
     image:
       repository: docker.io/djkormo/go-project-operator
-      tag: latest
+      tag: v0.0.6
     resources:
       limits:
         cpu: 500m
@@ -21,6 +21,8 @@ controllerManager:
       requests:
         cpu: 10m
         memory: 64Mi
+    securityContext:
+      runAsuser: 65532   
   replicas: 1
 kubernetesClusterDomain: cluster.local
 managerConfig:

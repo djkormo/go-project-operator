@@ -34,7 +34,6 @@ type ProjectRoleSpec struct {
 
 // ProjectRoleStatus defines the observed state of ProjectRole
 type ProjectRoleStatus struct {
-
 }
 
 //+kubebuilder:object:root=true
