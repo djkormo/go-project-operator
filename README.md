@@ -26,6 +26,7 @@ flowchart LR;
 
 [![Release helm charts](https://github.com/djkormo/go-project-operator/actions/workflows/helm-chart-releaser.yaml/badge.svg)](https://github.com/djkormo/go-project-operator/actions/workflows/helm-chart-releaser.yaml)
 
+[![Code scanning - action](https://github.com/djkormo/go-project-operator/actions/workflows/codeql.yaml/badge.svg)](https://github.com/djkormo/go-project-operator/actions/workflows/codeql.yaml)
 
 ## 1. Creating templates for operator
 
