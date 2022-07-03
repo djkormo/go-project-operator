@@ -381,7 +381,32 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	return ctrl.Result{}, nil
 }
+
 ```
+
+Note! 
+How to steer loop
+
+Based on 
+
+https://kubebyexample.com/en/learning-paths/operator-framework/operator-sdk-go/controller-reconcile-function
+
+<pre>
+The following are a few possible return options for a Reconciler:
+
+// With the error:
+return ctrl.Result{}, err
+
+// Without an error:
+return ctrl.Result{Requeue: true}, nil
+
+// Therefore, to stop the Reconcile, use:
+return ctrl.Result{}, nil
+
+// Reconcile again after X time:
+ return ctrl.Result{RequeueAfter: nextRun.Sub(r.Now())}, nil
+</pre>
+
 
 ```console
 
