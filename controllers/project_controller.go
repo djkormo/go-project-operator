@@ -318,6 +318,14 @@ func (r *ProjectReconciler) limitRangeForProjectApp(m *projectv1alpha1.Project) 
 	return limitRange
 }
 
+// SetupWithManager sets up the controller with the Manager.
+func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&projectv1alpha1.Project{}).
+		WithEventFilter(ignoreDeletionPredicate()).
+		Complete(r)
+}
+
 type UpdateEvent struct {
 	// ObjectOld is the object from the event.
 	ObjectOld runtime.Object
@@ -353,12 +361,4 @@ func ignoreDeletionPredicate() predicate.Predicate {
 			return !e.DeleteStateUnknown
 		},
 	}
-}
-
-// SetupWithManager sets up the controller with the Manager.
-func (r *ProjectReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&projectv1alpha1.Project{}).
-		WithEventFilter(ignoreDeletionPredicate()).
-		Complete(r)
 }

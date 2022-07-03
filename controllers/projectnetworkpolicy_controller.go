@@ -82,6 +82,35 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 		return ctrl.Result{}, nil
 	}
 
+	// fetch Project CR instance
+
+	projectFound := &projectv1alpha1.Project{}
+	projectName := ProjectNetworkPolicy.Spec.ProjectName
+	projectNamespace := ProjectNetworkPolicy.ObjectMeta.Namespace
+	// get  project template
+	project_err := r.Get(ctx, types.NamespacedName{
+		Name:      projectName,
+		Namespace: projectNamespace,
+	}, projectFound)
+
+	// Checking if pause reconciliation label is set to true on Project LEVEL
+	if project_err == nil {
+		logger.Info("Found project:", projectName, ". That's ok")
+		logger.Info("Project labels:", projectFound.Labels[pauseReconciliationLabel], " That's ok")
+		if v, ok := projectFound.Labels[pauseReconciliationLabel]; ok && v == "true" {
+			logger.Info("Not reconciling ProjectNetworkPolicy: label on Project level", pauseReconciliationLabel, "is true")
+			return ctrl.Result{}, nil
+		}
+	}
+	// Checking if Project object exists
+	if project_err != nil {
+		if errors.IsNotFound(project_err) {
+
+			logger.Info("Project resource not found. Ignoring since primary object must be deleted:", projectName, projectNamespace)
+			return ctrl.Result{}, nil
+		}
+	}
+
 	// Get array of networkpolicies names
 	netpolnames := ProjectNetworkPolicy.Spec.NetworkPolicies
 	logger.Info("List of NetworkPolicy names", "NetworkPolicy.Name", netpolnames)
@@ -142,8 +171,6 @@ func (r *ProjectNetworkPolicyReconciler) Reconcile(ctx context.Context, req ctrl
 				logger.Info("Skipping creating networkpolicy", "Excluded namespace", netpolnamespace)
 				continue
 			}
-
-			// checking if namespace is exluded
 
 			// Define new networkpolicy
 			netpol := r.networkpolicyForProjectApp(ProjectNetworkPolicy, netpolname, projectNetworkPolicyTemplateFound) // networkpolicyForProjectApp() returns a network policy

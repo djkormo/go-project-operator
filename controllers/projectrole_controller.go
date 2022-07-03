@@ -79,6 +79,35 @@ func (r *ProjectRoleReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, nil
 	}
 
+	// fetch Project CR instance
+
+	projectFound := &projectv1alpha1.Project{}
+	projectName := ProjectRole.Spec.ProjectName
+	projectNamespace := ProjectRole.ObjectMeta.Namespace
+	// get  project template
+	project_err := r.Get(ctx, types.NamespacedName{
+		Name:      projectName,
+		Namespace: projectNamespace,
+	}, projectFound)
+
+	// Checking if pause reconciliation label is set to true on Project LEVEL
+	if project_err == nil {
+		logger.Info("Found project:", projectName, ". That's ok")
+		logger.Info("Project labels:", projectFound.Labels[pauseReconciliationLabel], " That's ok")
+		if v, ok := projectFound.Labels[pauseReconciliationLabel]; ok && v == "true" {
+			logger.Info("Not reconciling ProjectRole: label on Project level", pauseReconciliationLabel, "is true")
+			return ctrl.Result{}, nil
+		}
+	}
+	// Checking if Project object exists
+	if project_err != nil {
+		if errors.IsNotFound(project_err) {
+
+			logger.Info("Project resource not found. Ignoring since primary object must be deleted:", projectName, projectNamespace)
+			return ctrl.Result{}, nil
+		}
+	}
+
 	// Get array of role names
 	rolenames := ProjectRole.Spec.Roles
 	logger.Info("List of Role names", "Role.Name", rolenames)
