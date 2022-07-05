@@ -89,9 +89,32 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 	}
 
+	// creating missing override configmap
+
+	configMapFound := &corev1.ConfigMap{}
+	err = r.Get(ctx, types.NamespacedName{Name: configMapName, Namespace: Project.Name}, configMapFound)
+
 	// Find if namespace exists
 	namespaceFound := &corev1.Namespace{}
 	err = r.Get(ctx, types.NamespacedName{Name: Project.Name}, namespaceFound)
+
+	if err != nil && errors.IsNotFound(err) {
+		// define a new configmap
+		cm := r.populateConfigOverrideConfigMap(Project) // returns a configmap
+		logger.Info("Creating a new Configmap", "ConfigMap.Name", configMapName)
+		err = r.Create(ctx, cm)
+		if err != nil {
+			logger.Error(err, "Failed to create new ConfigMap", "Configmap.Name", configMapName)
+			return ctrl.Result{}, err
+		}
+		// configmap created, return and requeue
+		logger.Info("ConfigMap created", "ConfiMap.Name", configMapName)
+		return ctrl.Result{Requeue: true}, nil
+	} else if err != nil {
+		logger.Error(err, "Failed to get ConfigMap")
+		// Reconcile failed due to error - requeue
+		return ctrl.Result{}, err
+	}
 
 	if err != nil && errors.IsNotFound(err) {
 		// define a new namespace
@@ -361,4 +384,21 @@ func ignoreDeletionPredicate() predicate.Predicate {
 			return !e.DeleteStateUnknown
 		},
 	}
+}
+
+func (r *ProjectReconciler) populateConfigOverrideConfigMap(m *projectv1alpha1.Project) *corev1.ConfigMap {
+
+	placeholderConfig := map[string]string{
+		"pauseReconciliationLabel": pauseReconciliationLabel,
+	}
+	namespace := m.Namespace
+	configmap := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      configMapName,
+			Namespace: namespace,
+		},
+		Data: placeholderConfig,
+	}
+
+	return configmap
 }
