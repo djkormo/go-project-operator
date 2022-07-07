@@ -49,7 +49,7 @@ type ProjectReconciler struct {
 //+kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch;create;update
 //+kubebuilder:rbac:groups="",resources=resourcequotas,verbs=get;list;watch;create;update;delete
 //+kubebuilder:rbac:groups="",resources=limitranges,verbs=get;list;watch;create;update;delete
-
+//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
@@ -92,11 +92,7 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	// creating missing override configmap
 
 	configMapFound := &corev1.ConfigMap{}
-	err = r.Get(ctx, types.NamespacedName{Name: configMapName, Namespace: Project.Name}, configMapFound)
-
-	// Find if namespace exists
-	namespaceFound := &corev1.Namespace{}
-	err = r.Get(ctx, types.NamespacedName{Name: Project.Name}, namespaceFound)
+	err = r.Get(ctx, types.NamespacedName{Name: configMapName, Namespace: Project.Namespace}, configMapFound)
 
 	if err != nil && errors.IsNotFound(err) {
 		// define a new configmap
@@ -115,6 +111,13 @@ func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		// Reconcile failed due to error - requeue
 		return ctrl.Result{}, err
 	}
+
+	// if configmap exists, use its data
+	// TODO
+
+	// Find if namespace exists
+	namespaceFound := &corev1.Namespace{}
+	err = r.Get(ctx, types.NamespacedName{Name: Project.Name}, namespaceFound)
 
 	if err != nil && errors.IsNotFound(err) {
 		// define a new namespace
@@ -391,11 +394,15 @@ func (r *ProjectReconciler) populateConfigOverrideConfigMap(m *projectv1alpha1.P
 	placeholderConfig := map[string]string{
 		"pauseReconciliationLabel": pauseReconciliationLabel,
 	}
+	labels := map[string]string{
+		pauseReconciliationLabel: "false",
+	}
 	namespace := m.Namespace
 	configmap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      configMapName,
 			Namespace: namespace,
+			Labels:    labels,
 		},
 		Data: placeholderConfig,
 	}
