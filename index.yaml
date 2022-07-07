@@ -13,6 +13,16 @@ entries:
     version: 0.0.4
   go-project-operator:
   - apiVersion: v2
+    appVersion: 0.0.9
+    created: "2022-07-07T20:03:49.991091616Z"
+    description: Project operator for Kubernetes in golang
+    digest: 9f67468399ff5d65a8750966ce46a008103c79b044a4a5cab08180166fa62923
+    name: go-project-operator
+    type: application
+    urls:
+    - https://github.com/djkormo/go-project-operator/releases/download/go-project-operator-0.0.9/go-project-operator-0.0.9.tgz
+    version: 0.0.9
+  - apiVersion: v2
     appVersion: 0.0.8
     created: "2022-07-05T21:27:31.140099884Z"
     description: Project operator for Kubernetes in golang
