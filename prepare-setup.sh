@@ -1,8 +1,8 @@
 #!/bin/bash
 
-export IMG=docker.io/djkormo/go-project-operator:v0.0.7
+export IMG=docker.io/djkormo/go-project-operator:0.0.11
 export NAMESPACE=project-operator
-export TAG=v0.0.7
+export TAG=0.0.11
 
 echo "IMG: $IMG"
 echo "NAMESPACE: $NAMESPACE"

@@ -485,6 +485,54 @@ projectroles                    projrole,prrole                                 
 projectroletemplates            projroletemplate,projroletemp,prroletemp                 project.djkormo.github.io/v1alpha1   true         ProjectRoleTemplate
 </pre>
 
+Testing rbac 
+
+```
+kubectl auth can-i list projects --namespace project-operator  \
+  --as system:serviceaccount:project-operator:controller-manager
+```
+<pre>
+yes
+</pre>
+
+```
+kubectl auth can-i list projectroletemplates --namespace project-operator  \
+  --as system:serviceaccount:project-operator:project-operator:controller-manager
+```
+<pre>
+no
+</pre>
+
+```
+kubectl auth can-i list projectroles --namespace project-operator  \
+  --as system:serviceaccount:project-operator:controller-manager
+```
+<pre>
+yes
+</pre>
+
+```
+kubectl auth can-i list projectnetworkpolicytemplates --namespace project-operator  \
+  --as system:serviceaccount:project-operator:project-operator:controller-manager
+```
+<pre>
+no
+</pre>
+
+```
+kubectl auth can-i list projectnetworkpolicies --namespace project-operator  \
+  --as system:serviceaccount:project-operator:project-operator:controller-manager
+```
+<pre>
+no
+</pre>
+
+
+
+
+
+
+
 
 Literature:
 
