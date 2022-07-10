@@ -17,8 +17,10 @@ spec:
     hard: 
       requests.cpu: "2"
       requests.memory: 3Gi
+      requests.ephemeral-storage: 1Gi
       limits.cpu: "4"
       limits.memory: 5Gi
+      limits.ephemeral-storage: 2Gi
   # limitRange  
   limitRange:
     limits:
@@ -31,8 +33,10 @@ spec:
       default:
         cpu: "200m"
         memory: "200Mi"
+        ephemeral-storage: "2Mi"
       defaultRequest:
         cpu: "100m"
         memory: "100Mi"
+        ephemeral-storage: "1Mi"
       type: Container
 

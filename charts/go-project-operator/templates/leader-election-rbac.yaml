@@ -2,6 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ include "chart.fullname" . }}-leader-election-role
+  namespace: {{  Release.Namespace }}
   labels:
   {{- include "chart.labels" . | nindent 4 }}
 rules:
@@ -41,6 +42,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ include "chart.fullname" . }}-leader-election-rolebinding
+  namespace: {{  Release.Namespace }}
   labels:
   {{- include "chart.labels" . | nindent 4 }}
 roleRef:
@@ -50,4 +52,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: '{{ include "chart.fullname" . }}-controller-manager'
-  namespace: '{{ .Release.Namespace }}'
+  namespace: {{ .Release.Namespace }}
