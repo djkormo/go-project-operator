@@ -426,7 +426,7 @@ make run
 bash prepare-setup.sh
 make docker-build docker-push IMG=$IMG
 
-make docker-build docker-push IMG="docker.io/djkormo/go-project-operator:v0.0.8"
+make docker-build docker-push IMG="docker.io/djkormo/go-project-operator:0.0.11"
 
 ```
 
@@ -468,6 +468,15 @@ Testing locally
 helm lint charts/go-project-operator
 
 helm template charts/go-project-operator -n project-operator --values charts/go-project-operator/values.yaml
+
+helm template charts/go-project-operator -n project-operator --values charts/go-project-operator/values.yaml > operator-all.yaml
+
+kubectl apply -f operator-all.yaml -n project-operator
+
+kubectl rollout restart deploy
+
+kubectl -n project-operator logs deploy/release-name-go-project-operator-controller-manager -f
+
 ```
 
 

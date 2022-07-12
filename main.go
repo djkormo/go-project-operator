@@ -33,6 +33,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	zaplogfmt "github.com/sykesm/zap-logfmt"
+	uzap "go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	//logf "sigs.k8s.io/controller-runtime/pkg/log"
+
 	projectv1alpha1 "github.com/djkormo/go-project-operator/api/v1alpha1"
 	"github.com/djkormo/go-project-operator/controllers"
 	//+kubebuilder:scaffold:imports
@@ -73,13 +78,25 @@ func main() {
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
+
 	opts := zap.Options{
-		Development: true,
+		Development: false, //was true
 	}
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
-	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+	configLog := uzap.NewProductionEncoderConfig()
+	configLog.EncodeTime = func(ts time.Time, encoder zapcore.PrimitiveArrayEncoder) {
+		encoder.AppendString(ts.UTC().Format(time.RFC3339Nano))
+	}
+	logfmtEncoder := zaplogfmt.NewEncoder(configLog)
+
+	//ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+
+	// Construct a new logr.logger.
+	logger := zap.New(zap.UseDevMode(false), zap.WriteTo(os.Stdout), zap.Encoder(logfmtEncoder))
+	ctrl.SetLogger(logger)
+
 	var resyncPeriod = time.Second * 60
 	watchNamespace, err := getWatchNamespace()
 	if err != nil {

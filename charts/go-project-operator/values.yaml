@@ -13,7 +13,7 @@ controllerManager:
   manager:
     image:
       repository: docker.io/djkormo/go-project-operator
-      tag: 0.0.11
+      tag: 0.0.12
     resources:
       limits:
         cpu: 500m
