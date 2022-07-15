@@ -85,7 +85,10 @@ func main() {
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
+	// based on https://sdk.operatorframework.io/docs/building-operators/golang/references/logging/
+
 	configLog := uzap.NewProductionEncoderConfig()
+	// changing  time format to RFC3339Nano -> 2006-01-02T15:04:05.999999999Z07:00"
 	configLog.EncodeTime = func(ts time.Time, encoder zapcore.PrimitiveArrayEncoder) {
 		encoder.AppendString(ts.UTC().Format(time.RFC3339Nano))
 	}
