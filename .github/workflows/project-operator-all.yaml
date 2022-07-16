@@ -2,6 +2,8 @@ name: project operator pipeline
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'api/**.go'
       - 'config/**.go'
