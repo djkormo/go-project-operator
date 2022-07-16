@@ -9,6 +9,8 @@ on:
       - 'config/**.go'
       - 'controllers/**.go'
       - '**.go'
+      - 'go.mod'
+      - 'go.sum'
       - 'Dockerfile'
 
 
