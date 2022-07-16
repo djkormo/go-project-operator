@@ -426,7 +426,7 @@ make run
 bash prepare-setup.sh
 make docker-build docker-push IMG=$IMG
 
-make docker-build docker-push IMG="docker.io/djkormo/go-project-operator:0.0.11"
+make docker-build docker-push IMG="docker.io/djkormo/go-project-operator:0.0.13"
 
 ```
 
@@ -452,6 +452,9 @@ helm repo update
 
 helm search repo go-project-operator  --versions
 
+
+helm get values  go-project-operator
+
 helm install go-project-operator djkormo-go-project-operator/go-project-operator \
   --namespace project-operator --values charts/go-project-operator/values.yaml --create-namespace --dry-run
 
@@ -475,7 +478,7 @@ kubectl apply -f operator-all.yaml -n project-operator
 
 kubectl rollout restart deploy
 
-kubectl -n project-operator logs deploy/release-name-go-project-operator-controller-manager -f
+kubectl -n project-operator logs deploy/project-operator-controller-manager -f
 
 ```
 
@@ -498,7 +501,7 @@ Testing rbac
 
 ```
 kubectl auth can-i list projects --namespace project-operator  \
-  --as system:serviceaccount:project-operator:controller-manager
+  --as system:serviceaccount:project-operator:project-operator-controller-manager
 ```
 <pre>
 yes
@@ -506,7 +509,7 @@ yes
 
 ```
 kubectl auth can-i list projectroletemplates --namespace project-operator  \
-  --as system:serviceaccount:project-operator:project-operator:controller-manager
+  --as system:serviceaccount:project-operator:project-operator:project-operator-controller-manager
 ```
 <pre>
 no
@@ -514,7 +517,7 @@ no
 
 ```
 kubectl auth can-i list projectroles --namespace project-operator  \
-  --as system:serviceaccount:project-operator:controller-manager
+  --as system:serviceaccount:project-operator:project-operator-controller-manager
 ```
 <pre>
 yes
@@ -522,7 +525,7 @@ yes
 
 ```
 kubectl auth can-i list projectnetworkpolicytemplates --namespace project-operator  \
-  --as system:serviceaccount:project-operator:project-operator:controller-manager
+  --as system:serviceaccount:project-operator:project-operator:project-operator-controller-manager
 ```
 <pre>
 no
@@ -530,7 +533,7 @@ no
 
 ```
 kubectl auth can-i list projectnetworkpolicies --namespace project-operator  \
-  --as system:serviceaccount:project-operator:project-operator:controller-manager
+  --as system:serviceaccount:project-operator:project-operator:project-operator-controller-manager
 ```
 <pre>
 no
