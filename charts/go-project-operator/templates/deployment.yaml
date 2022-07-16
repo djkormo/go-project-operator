@@ -9,7 +9,7 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "chart.fullname" . }}-controller-manager
+  name: project-operator-controller-manager
   namespace: {{  .Release.Namespace }}
   labels:
     control-plane: controller-manager

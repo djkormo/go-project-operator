@@ -1,12 +1,10 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: projects.project.djkormo.github.io
   annotations:
-    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ include "chart.fullname" . }}-
-    controller-gen.kubebuilder.io/version: v0.7.0
-  labels:
-  {{- include "chart.labels" . | nindent 4 }}
+    controller-gen.kubebuilder.io/version: v0.8.0
+  creationTimestamp: null
+  name: projects.project.djkormo.github.io
 spec:
   group: project.djkormo.github.io
   names:
@@ -43,8 +41,8 @@ spec:
                 description: LimitRange specification
                 properties:
                   limits:
-                    description: Limits is the list of LimitRangeItem objects that are
-                      enforced.
+                    description: Limits is the list of LimitRangeItem objects that
+                      are enforced.
                     items:
                       description: LimitRangeItem defines a min/max usage limit for
                         any resource that matches on kind.
@@ -56,8 +54,8 @@ spec:
                             - type: string
                             pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                             x-kubernetes-int-or-string: true
-                          description: Default resource requirement limit value by resource
-                            name if resource limit is omitted.
+                          description: Default resource requirement limit value by
+                            resource name if resource limit is omitted.
                           type: object
                         defaultRequest:
                           additionalProperties:
@@ -67,7 +65,8 @@ spec:
                             pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                             x-kubernetes-int-or-string: true
                           description: DefaultRequest is the default resource requirement
-                            request value by resource name if resource request is omitted.
+                            request value by resource name if resource request is
+                            omitted.
                           type: object
                         max:
                           additionalProperties:
@@ -122,8 +121,8 @@ spec:
                       - type: string
                       pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                       x-kubernetes-int-or-string: true
-                    description: 'hard is the set of desired hard limits for each named
-                      resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/'
+                    description: 'hard is the set of desired hard limits for each
+                      named resource. More info: https://kubernetes.io/docs/concepts/policy/resource-quotas/'
                     type: object
                   scopeSelector:
                     description: scopeSelector is also a collection of filters like
@@ -136,24 +135,25 @@ spec:
                         description: A list of scope selector requirements by scope
                           of the resources.
                         items:
-                          description: A scoped-resource selector requirement is a selector
-                            that contains values, a scope name, and an operator that
-                            relates the scope name and values.
+                          description: A scoped-resource selector requirement is a
+                            selector that contains values, a scope name, and an operator
+                            that relates the scope name and values.
                           properties:
                             operator:
-                              description: Represents a scope's relationship to a set
-                                of values. Valid operators are In, NotIn, Exists, DoesNotExist.
+                              description: Represents a scope's relationship to a
+                                set of values. Valid operators are In, NotIn, Exists,
+                                DoesNotExist.
                               type: string
                             scopeName:
-                              description: The name of the scope that the selector applies
-                                to.
+                              description: The name of the scope that the selector
+                                applies to.
                               type: string
                             values:
                               description: An array of string values. If the operator
                                 is In or NotIn, the values array must be non-empty.
                                 If the operator is Exists or DoesNotExist, the values
-                                array must be empty. This array is replaced during a
-                                strategic merge patch.
+                                array must be empty. This array is replaced during
+                                a strategic merge patch.
                               items:
                                 type: string
                               type: array
@@ -165,10 +165,11 @@ spec:
                     type: object
                   scopes:
                     description: A collection of filters that must match each object
-                      tracked by a quota. If not specified, the quota matches all objects.
+                      tracked by a quota. If not specified, the quota matches all
+                      objects.
                     items:
-                      description: A ResourceQuotaScope defines a filter that must match
-                        each object tracked by a quota
+                      description: A ResourceQuotaScope defines a filter that must
+                        match each object tracked by a quota
                       type: string
                     type: array
                 type: object
