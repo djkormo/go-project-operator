@@ -1,0 +1,19 @@
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectAccess
+metadata:
+  name: projectaccess-sample-1  
+  labels:
+    app: project-sample-label-1
+    project-operator/pauseReconciliation: "false"
+
+spec:
+  projectName: project-sample-1
+  endpoints:
+    - name: "DNS" 
+      ip: "127.0.0.1"
+      port: 53
+      protocol: UDP
+    - name: "web" 
+      ip: "127.0.0.1"
+      port: 443
+      protocol: TCP

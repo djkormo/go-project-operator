@@ -62,6 +62,32 @@ rules:
 - apiGroups:
   - project.djkormo.github.io
   resources:
+  - projectaccesses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - project.djkormo.github.io
+  resources:
+  - projectaccesses/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - project.djkormo.github.io
+  resources:
+  - projectaccesses/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - project.djkormo.github.io
+  resources:
   - projectnetworkpolicies
   verbs:
   - create

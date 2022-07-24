@@ -65,6 +65,13 @@ operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectRoleTem
 operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectRole --controller --resource
 ```
 
+### 1.7 create ProjectAccess API
+
+```bash
+operator-sdk create api --group=project --version=v1alpha1 --kind=ProjectAccess --controller --resource
+```
+
+
 ## 2. Adding fields to our Project CRD
 
 ```yaml
@@ -202,8 +209,31 @@ spec:
     - projectnetpoltemplate-allow-dns
 
 ```
+## 5. Adding fields to our Project Access CRD
+```yaml
+apiVersion: project.djkormo.github.io/v1alpha1
+kind: ProjectAccess
+metadata:
+  name: projectaccess-sample-1  
+  labels:
+    app: project-sample-label-1
+    project-operator/pauseReconciliation: "false"
 
-## 5. Change in file api/v1alpha1/project_types.go
+spec:
+  projectName: project-sample-1
+  endpoints:
+    - name: "DNS" 
+      ip: "127.0.0.1"
+      port: 53
+      protocol: UDP
+    - name: "web" 
+      ip: "127.0.0.1"
+      port: 443
+      protocol: TCP
+
+```
+
+## 6. Change in file api/v1alpha1/project_types.go
 Remove Foo field 
 Add two structs for ResourceQuota and Limitrange Spec 
 
@@ -219,7 +249,7 @@ type ProjectSpec struct {
 }
 ```
 
-## 6. Change in file api/v1alpha1/projectnetworkpolicytemplate_types.go
+## 7. Change in file api/v1alpha1/projectnetworkpolicytemplate_types.go
 Remove Foo field 
 Add two fields: ExcludeNamespaces and PolicySpec
 
@@ -235,7 +265,7 @@ type ProjectNetworkPolicyTemplateSpec struct {
 ```
 
 
-## 7. Change CRD for policy network policy
+## 8. Change CRD for policy network policy
 
 ```go
 type ProjectNetworkPolicySpec struct {
@@ -249,7 +279,7 @@ type ProjectNetworkPolicySpec struct {
 ```
 
 
-## 8. CR for Project Role Template
+## 9. CR for Project Role Template
 
 ```yaml
 apiVersion: project.djkormo.github.io/v1alpha1
@@ -302,7 +332,7 @@ rule:
 ```
 
 
-## 9. CR for Project Role
+## 10. CR for Project Role
 
 ```yaml
 apiVersion: project.djkormo.github.io/v1alpha1
@@ -318,7 +348,7 @@ spec:
     - projectroletemplate-sample-1
 ```
 
-## 10. Change CRD for project role template
+## 11. Change CRD for project role template
 
 ```go
 type ProjectRoleTemplateSpec struct {
@@ -332,7 +362,7 @@ type ProjectRoleTemplateSpec struct {
 
 ```
 
-## 10. Change CRD for role 
+## 12. Change CRD for role 
 
 ```go
 type ProjectRoleSpec struct {
@@ -347,14 +377,14 @@ type ProjectRoleSpec struct {
 ```
 
 
-## 10. Regenerate crds and all manifests
+## 13. Regenerate crds and all manifests
 
 ```console
 make generate
 make manifests
 ```
 
-## 11. Add operator logic via Reconciler Loop
+## 14. Add operator logic via Reconciler Loop
 
 ```go
 func (r *ProjectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
