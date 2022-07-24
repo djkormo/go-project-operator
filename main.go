@@ -36,6 +36,7 @@ import (
 	zaplogfmt "github.com/sykesm/zap-logfmt"
 	uzap "go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
 	//logf "sigs.k8s.io/controller-runtime/pkg/log"
 
 	projectv1alpha1 "github.com/djkormo/go-project-operator/api/v1alpha1"
@@ -142,6 +143,13 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ProjectRole")
+		os.Exit(1)
+	}
+	if err = (&controllers.ProjectAccessReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "ProjectAccess")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
