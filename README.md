@@ -456,7 +456,7 @@ make run
 bash prepare-setup.sh
 make docker-build docker-push IMG=$IMG
 
-make docker-build docker-push IMG="docker.io/djkormo/go-project-operator:0.0.13"
+make docker-build docker-push IMG="docker.io/djkormo/go-project-operator:0.0.14"
 
 ```
 
